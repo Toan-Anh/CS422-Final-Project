@@ -1,0 +1,43 @@
+@import 'Variables.scss';
+
+.web-text {
+	font-family: $font-stack;
+	color: $font-color;
+}
+
+h1 {
+	@extend .web-text;
+}
+
+h2 {
+	@extend .web-text;
+}
+
+h3 {
+	@extend .web-text;
+}
+
+h4 {
+	@extend .web-text;
+}
+
+h5 {
+	@extend .web-text;
+}
+
+h6 {
+	@extend .web-text;
+}
+
+p {
+	@extend .web-text;
+}
+
+a {
+	@extend .web-text;
+	color: $primary-color;
+	
+	&:hover {
+		color: $highlight-color;
+	}
+}

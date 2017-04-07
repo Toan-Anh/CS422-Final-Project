@@ -1,10 +1,31 @@
+@import 'Variables.scss';
+@import 'Typography.scss';
+
 body {
 	margin: 0;
 	padding: 0;
-	font-family: "Roboto", sans-serif;
+	font-family: $font-stack;
 	min-height: 100%;
 }
 
 p {
 	font-size: 18px;
+}
+
+.full-screen {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	right: 0px;
+}
+
+.center {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+.section {
+	display: block;
 }

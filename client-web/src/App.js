@@ -30,11 +30,11 @@ class App extends Component {
 
 				<Navbar collapseOnSelect>
 					<Navbar.Header>
-						<Navbar.Toggle />
-
 						<Navbar.Brand>
 							<a href="#">MMS</a>
 						</Navbar.Brand>
+
+						<Navbar.Toggle />
 					</Navbar.Header>
 
 					<Navbar.Collapse>
