@@ -16,6 +16,7 @@ h1 {
 	margin: 24px 0px;
 	font-family: "Oswald";
 	font-weight: bold;
+	font-size: 32px;
 }
 
 .about {
@@ -34,4 +35,19 @@ h1 {
 	align-self: flex-end;
 	margin-top: -8px;
 	margin-bottom: 24px;
+}
+
+.decoration-container {
+	display: flex;
+	flex-direction: row;
+	align-self: stretch;
+	align-items: center;
+}
+
+.decoration {
+	height: 1px;
+	background: rgba(0, 0, 0, 0.50);
+	display: flex;
+	flex: 1;
+	margin: 12px;
 }

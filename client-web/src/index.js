@@ -10,6 +10,18 @@ import App from './App';
 import { LogInPage, NoMatch } from './pages';
 import './stylesheets/index.css';
 
+import * as firebase from 'firebase';
+
+var config = {
+	apiKey: "AIzaSyChH5O7-ZtDqB53Qpv7dYo78co2RP5gyT8",
+	authDomain: "mini-restaurant-management.firebaseapp.com",
+	databaseURL: "https://mini-restaurant-management.firebaseio.com",
+	projectId: "mini-restaurant-management",
+	storageBucket: "mini-restaurant-management.appspot.com",
+	messagingSenderId: "927567795857"
+};
+firebase.initializeApp(config);
+
 let history = createHistory();
 
 ReactDOM.render(

@@ -7,7 +7,10 @@ import {
 	Nav,
 	Navbar,
 	NavItem,
+	MenuItem,
+	NavDropdown,
 } from 'react-bootstrap';
+import * as firebase from 'firebase';
 
 import './stylesheets/App.css';
 
@@ -17,7 +20,29 @@ class App extends Component {
 		super(props);
 		this.state = {
 			activeKey: 0,
+			currentUser: null,
 		}
+	}
+
+	componentWillMount() {
+		firebase.auth().onAuthStateChanged((user) => {
+			if (user) {
+				// // User is signed in.
+				// var displayName = user.displayName;
+				// var email = user.email;
+				// var emailVerified = user.emailVerified;
+				// var photoURL = user.photoURL;
+				// var isAnonymous = user.isAnonymous;
+				// var uid = user.uid;
+				// var providerData = user.providerData;
+				// // ...
+				this.setState({ currentUser: user });
+			} else {
+				// User is signed out.
+				// ...
+				this.props.history.replace('/login');
+			}
+		});
 	}
 
 	_onNavSelect() {
@@ -39,8 +64,12 @@ class App extends Component {
 
 					<Navbar.Collapse>
 						<Nav pullRight activeKey={this.state.activeKey} onSelect={this._onNavSelect}>
-							
-							<NavItem eventKey={1} href="/Login"></NavItem>
+
+							<NavItem eventKey='1' href="/Login">Login</NavItem>
+							<NavItem eventKey='2'>Sign out</NavItem>
+							<NavDropdown eventKey='3' title="Dropdown" id="nav-dropdown">
+								<MenuItem eventKey="4.1" onClick={() => {}}>Sign out</MenuItem>
+							</NavDropdown>
 							{/*
 							<NavItem eventKey={1} href="/">Home</NavItem>
 							<NavItem eventKey={2} href="#">Link</NavItem>
