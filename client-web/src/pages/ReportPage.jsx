@@ -8,10 +8,15 @@ export default class ReportPage extends Component {
 		}
 	}
 
+	componentWillMount() {
+
+	}
 
 	render() {
 		return (
-			<p>Report</p>
+			<div>
+
+			</div>
 		);
 	}
 }

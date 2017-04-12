@@ -33,11 +33,16 @@ p {
 	@extend .web-text;
 }
 
+span {
+	@extend .web-text;
+}
+
 a {
 	@extend .web-text;
 	color: $primary-color;
 	
 	&:hover {
 		color: $highlight-color;
+		cursor: pointer;
 	}
 }

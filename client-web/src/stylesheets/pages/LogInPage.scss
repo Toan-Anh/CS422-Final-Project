@@ -51,3 +51,26 @@ h1 {
 	flex: 1;
 	margin: 12px;
 }
+
+#copyright {
+	font-size: 12px;
+	color: rgba(0, 0, 0, 0.5);
+	margin: 0px;
+	margin-top: 12px;
+}
+
+.loading-box {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding: 24px 48px;
+	border-radius: 4px;
+	background: white;
+	box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px;
+}
+
+#loading {
+	margin: 0px;
+	margin-top: 12px;
+}

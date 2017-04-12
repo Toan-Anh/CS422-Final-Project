@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import '../stylesheets/index.css';
+import "../stylesheets/font-awesome-4.7.0/css/font-awesome.min.css";
 import '../stylesheets/pages/LogInPage.css';
 import {
 	Button,
 	FormGroup,
 	FormControl,
-	ControlLabel,
-	HelpBlock,
+	// ControlLabel,
+	// HelpBlock,
+	Modal,
 } from 'react-bootstrap';
 import * as firebase from 'firebase';
 
@@ -17,6 +19,8 @@ export default class LogInPage extends Component {
 		this.state = {
 			email: '',
 			password: '',
+			loading: true,
+			showModal: false,
 		}
 	}
 
@@ -24,31 +28,33 @@ export default class LogInPage extends Component {
 		firebase.auth().onAuthStateChanged((user) => {
 			if (user) {
 				// User is signed in.
-				var displayName = user.displayName;
-				var email = user.email;
-				var emailVerified = user.emailVerified;
-				var photoURL = user.photoURL;
-				var isAnonymous = user.isAnonymous;
-				var uid = user.uid;
-				var providerData = user.providerData;
+				// var displayName = user.displayName;
+				// var email = user.email;
+				// var emailVerified = user.emailVerified;
+				// var photoURL = user.photoURL;
+				// var isAnonymous = user.isAnonymous;
+				// var uid = user.uid;
+				// var providerData = user.providerData;
 				// ...
 				console.log(user);
+				this.props.history.replace('/');
 			} else {
 				// User is signed out.
 				// ...
 				console.log("No user currently signed in");
+				this.setState({ loading: false });
 			}
 		});
 
 	}
 
 	_logIn() {
-		console.log(this.state.email)
+		this.setState({ loading: true });
 		firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
 			.then((a) => {
-				console.log(a);
+				this.props.history.replace('/');
 			})
-			.catch(function (error) {
+			.catch((error) => {
 				// Handle Errors here.
 				var errorCode = error.code;
 				var errorMessage = error.message;
@@ -56,50 +62,97 @@ export default class LogInPage extends Component {
 				if (errorCode || errorMessage) {
 					console.log('errorCode', errorCode);
 					console.log('errorMessage', errorMessage);
+					this.setState({ loading: false });
+					this._alertError(errorMessage);
 				}
 			});
+	}
+
+	_resetPassword() {
+
+	}
+
+	_alertError(message) {
+		this.setState({ errorMessage: message, showModal: true });
+	}
+
+	_closeAlert() {
+		this.setState({ errorMessage: '', showModal: false });
+	}
+
+	_renderLoading() {
+		return (
+			<div className='loading-box'>
+				<i className="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+				<p id='loading'>Loading...</p>
+			</div>
+		);
+	}
+
+	_renderAlertModal() {
+		return (
+			<Modal show={this.state.showModal} onHide={() => this._closeAlert()}>
+				<Modal.Header closeButton>
+					<Modal.Title>Error</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					<p>{this.state.errorMessage}</p>
+				</Modal.Body>
+				<Modal.Footer>
+					<Button onClick={() => this._closeAlert()}>OK</Button>
+				</Modal.Footer>
+			</Modal>
+		);
+	}
+
+	_renderLogInForm() {
+		return (
+			<div className="log-in-box">
+				<img alt='logo' src={require("../res/logo.svg")} style={{ height: 100, marginTop: 32 }} />
+
+				<div className='decoration-container'>
+					<div className='decoration' />
+					<h1>LOG IN</h1>
+					<div className='decoration' />
+				</div>
+
+				<form style={{ alignSelf: 'stretch' }}>
+					<FormGroup controlId="formEmail">
+						<FormControl
+							type="text"
+							value={this.state.email}
+							placeholder="Enter your email"
+							onChange={(e) => { this.setState({ email: e.target.value }) }}
+						/>
+					</FormGroup>
+
+					<FormGroup controlId="formPassword">
+						<FormControl
+							type="password"
+							value={this.state.password}
+							placeholder="Enter your password"
+							onChange={(e) => { this.setState({ password: e.target.value }) }}
+						/>
+					</FormGroup>
+				</form>
+
+				<a id='reset-password' onClick={() => { this._resetPassword() }}>Forgot your password?</a>
+
+				<Button bsStyle='primary' style={{ alignSelf: 'stretch' }} onClick={() => this._logIn()}>Log In</Button>
+
+				<div style={{ flex: 1 }} />
+
+				<p id='copyright'>Blah blah blah copyright or something</p>
+
+				{this._renderAlertModal()}
+			</div>
+		);
 	}
 
 	render() {
 		return (
 			<div className="full-screen center log-in-background">
-				<div className="log-in-box">
-					<img src={require("../res/logo.svg")} style={{ height: 100, marginTop: 32 }} />
-
-					<div className='decoration-container'>
-						<div className='decoration' />
-						<h1>LOG IN</h1>
-						<div className='decoration' />
-					</div>
-
-					<form style={{ alignSelf: 'stretch' }}>
-						<FormGroup controlId="formEmail">
-							<FormControl
-								type="text"
-								value={this.state.email}
-								placeholder="Enter your email"
-								onChange={(e) => { this.setState({ email: e.target.value }) }}
-							/>
-						</FormGroup>
-
-						<FormGroup controlId="formPassword">
-							<FormControl
-								type="password"
-								value={this.state.password}
-								placeholder="Enter your password"
-								onChange={(e) => { this.setState({ password: e.target.value }) }}
-							/>
-						</FormGroup>
-					</form>
-
-					<a id='reset-password'>Forgot your password?</a>
-
-					<Button bsStyle='primary' style={{ alignSelf: 'stretch' }} onClick={() => this._logIn()}>Log In</Button>
-
-					<div style={{ flex: 1 }} />
-
-					<p style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.5)', margin: 0 }}>Blah blah blah copyright or something</p>
-				</div>
+				{this.state.loading ? this._renderLoading() : this._renderLogInForm()}
 			</div>
 		);
 	}

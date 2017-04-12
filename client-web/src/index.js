@@ -27,8 +27,8 @@ let history = createHistory();
 ReactDOM.render(
 	<Router history={history}>
 		<Switch>
-			<Route exact path='/' component={App} />
 			<Route path='/login' component={LogInPage} />
+			<Route path='/' component={App} />
 			<Route component={NoMatch} />
 		</Switch>
 	</Router>,
