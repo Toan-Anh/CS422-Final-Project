@@ -84,7 +84,7 @@ class App extends Component {
 				// var uid = user.uid;
 				// var providerData = user.providerData;
 				// // ...
-				this.setState({ currentUser: user }, () => console.log(this.state.currentUser));
+				this.setState({ currentUser: user });
 
 				if (this.props.location.pathname === '/')
 					this._changeTab(0);
