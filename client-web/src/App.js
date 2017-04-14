@@ -12,60 +12,29 @@ import {
 } from 'react-bootstrap';
 import * as firebase from 'firebase';
 import Sidebar from 'react-sidebar';
-import ReportPage from './pages/ReportPage';
+import {
+	ReportPage,
+	RecipeManagementPage,
+	IngredientManagementPage,
+	AddRecipePage
+} from './pages';
 
 import './stylesheets/App.css';
 
 const sidebarStyle = {
 	root: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
-		overflow: 'hidden',
 		backgroundColor: '#f7f7f7',
 	},
 	sidebar: {
-		zIndex: 2,
-		position: 'absolute',
-		top: 0,
-		bottom: 0,
-		transition: 'transform .3s ease-out',
-		WebkitTransition: '-webkit-transform .3s ease-out',
-		willChange: 'transform',
-		overflowY: 'auto',
 		backgroundColor: 'white',
 		// padding: '16px 24px',
 		minWidth: 320,
 	},
 	content: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
-		overflowY: 'scroll',
-		WebkitOverflowScrolling: 'touch',
-		transition: 'left .3s ease-out, right .3s ease-out',
 	},
 	overlay: {
-		zIndex: 1,
-		position: 'fixed',
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
-		opacity: 0,
-		visibility: 'hidden',
-		transition: 'opacity .3s ease-out, visibility .3s ease-out',
-		backgroundColor: 'rgba(0,0,0,.3)',
 	},
 	dragHandle: {
-		zIndex: 1,
-		position: 'fixed',
-		top: 0,
-		bottom: 0,
 	},
 };
 
@@ -116,7 +85,16 @@ class App extends Component {
 				// var providerData = user.providerData;
 				// // ...
 				this.setState({ currentUser: user }, () => console.log(this.state.currentUser));
-				this._changeTab(0);
+
+				if (this.props.location.pathname === '/')
+					this._changeTab(0);
+				else {
+					this.tabs.forEach((tab, index) => {
+						if (this.props.location.pathname === tab.path)
+							this._changeTab(index);
+					})
+				}
+
 			} else {
 				this.props.history.replace('/login');
 			}
@@ -130,8 +108,7 @@ class App extends Component {
 	_onNavSelect() {
 	}
 
-	_signOut()
-	{
+	_signOut() {
 		firebase.auth().signOut();
 	}
 
@@ -165,7 +142,7 @@ class App extends Component {
 		else
 			this.props.history.push(item.path)
 		document.title = 'MMS - ' + item.title;
-		this.setState({ currentTab: index });
+		this.setState({ currentTab: index, sidebarOpen: this.state.sidebarDocked });
 	}
 
 	_renderSideBarContent() {
@@ -201,8 +178,10 @@ class App extends Component {
 						{/* Routes here */}
 						<Route path='/report' component={ReportPage} />
 						<Route path='/dish_management' component={ReportPage} />
-						<Route path='/recipe_management' component={ReportPage} />
-						<Route path='/ingredient_management' component={ReportPage} />
+						<Route path='/recipe_management' component={RecipeManagementPage} />
+						<Route path='/ingredient_management' component={IngredientManagementPage} />
+
+						<Route path='/add_recipe' component={AddRecipePage} />
 
 					</div>
 

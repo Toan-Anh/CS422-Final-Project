@@ -24,7 +24,7 @@ export default class LogInPage extends Component {
 		}
 	}
 
-	componentWillMount() {
+	componentDidMount() {
 		firebase.auth().onAuthStateChanged((user) => {
 			if (user) {
 				// User is signed in.
@@ -36,12 +36,11 @@ export default class LogInPage extends Component {
 				// var uid = user.uid;
 				// var providerData = user.providerData;
 				// ...
-				console.log(user);
 				this.props.history.replace('/');
 			} else {
 				// User is signed out.
 				// ...
-				console.log("No user currently signed in");
+				// console.log("No user currently signed in");
 				this.setState({ loading: false });
 			}
 		});
@@ -112,7 +111,7 @@ export default class LogInPage extends Component {
 
 				<div className='decoration-container'>
 					<div className='decoration' />
-					<h1>LOG IN</h1>
+					<h1 id='log-in-header'>LOG IN</h1>
 					<div className='decoration' />
 				</div>
 
