@@ -5,13 +5,13 @@
             "email": "txson@apcs.vn",
             "gender": "male",
             "phone": "01642840496",
-            "role": 1
+            "role": "1"
         }
 
     },
 
     "roles": {
-        "chef": 1
+        "chef": "1"
     },
 
     "dishes": {
@@ -23,7 +23,7 @@
         }
     },
 
-    "recipe": {
+    "recipes": {
         "pho tai": {
             "0": "step 1",
             "1": "step 2"
@@ -32,16 +32,16 @@
 
     "ingredientsPerDish": {
         "pho tai": {
-            "hanh": 50,
-            "toi": 50,
-            "bo tai": 250
+            "hanh": "50",
+            "toi": "50",
+            "bo tai": "250"
         }
     },
 
     "ingredientsAmountLeft": {
-        "hanh": 1,
-        "toi": 0,
-        "bo tai": 2
+        "hanh": "1",
+        "toi": "0",
+        "bo tai": "2"
     },
 
     "ingredientsAmountMapping": {
@@ -62,14 +62,14 @@
         "ban 1": {
             "0": {
                 "dishes": {
-                    "pho tai": 5
+                    "pho tai": "5"
                 },
                 "state": "done"
             },
             "1": {
                 "dishes": {
-                    "pho tai": 4,
-                    "bun bo": 1
+                    "pho tai": "4",
+                    "bun bo": "1"
                 },
                 "state": "done"
             }

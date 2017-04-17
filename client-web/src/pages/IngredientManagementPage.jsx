@@ -15,23 +15,24 @@ export default class IngredientManagementPage extends Component {
 		this.state = {
 			ingredients: [],
 			ingredientAmounts: [],
+			selectedRows: {},
 			loading: true,
 		};
-
-		this.selectedRows = {};
 
 		this._onIngredientsReceived = this._onIngredientsReceived.bind(this);
 		this._onIngredientAmountReceived = this._onIngredientAmountReceived.bind(this);
 		this._onSelect = this._onSelect.bind(this);
+		this._onSelectAll = this._onSelectAll.bind(this);
 		this._getAmountEditor = this._getAmountEditor.bind(this);
 		this._updateAmount = this._updateAmount.bind(this);
+		this._renderAmountCell = this._renderAmountCell.bind(this);
 	}
 
 	componentWillMount() {
-		this.ingredientsRef = firebase.database().ref('/ingredients/');
+		this.ingredientsRef = firebase.database().ref('/ingredientsAmountLeft/');
 		this.ingredientsRef.on('value', this._onIngredientsReceived);
 
-		this.ingredientAmountRef = firebase.database().ref('/ingredient_amount/');
+		this.ingredientAmountRef = firebase.database().ref('/ingredientsAmountMapping/');
 		this.ingredientAmountRef.on('value', this._onIngredientAmountReceived);
 	}
 
@@ -68,12 +69,24 @@ export default class IngredientManagementPage extends Component {
 	}
 
 	_onSelect(row, isSelected, e) {
+		let selected = this.state.selectedRows;
 		if (isSelected)
-			this.selectedRows[row.name] = true;
+			selected[row.name] = true;
 		else {
-			if (this.selectedRows[row.name])
-				delete this.selectedRows[row.name];
+			if (selected[row.name])
+				delete selected[row.name];
 		}
+		
+		this.setState({selectedRows: selected});
+	}
+
+	_onSelectAll(isSelected, rows) {
+		let selected = {};
+		if (isSelected)
+			rows.forEach(row => selected[row.name] = true);
+		
+		this.setState({selectedRows: selected});
+		return true;
 	}
 
 	_renderHelp() {
@@ -88,7 +101,7 @@ export default class IngredientManagementPage extends Component {
 
 	_renderDeleteModal() {
 		return (
-			<DeleteIngredientModal ref={ref => this.deleteModal = ref} toBeDeleted={this.selectedRows} />
+			<DeleteIngredientModal ref={ref => this.deleteModal = ref} toBeDeleted={this.state.selectedRows} />
 		);
 	}
 
@@ -99,8 +112,11 @@ export default class IngredientManagementPage extends Component {
 	}
 
 	_updateAmount(row, cellName, cellValue) {
-		console.log(row, cellName, cellValue);
-		// firebase.database().ref(`/ingredients/${cellName}`).set(cellValue);
+		firebase.database().ref(`/ingredientsAmountLeft/${row.name}`).set(cellValue);
+	}
+
+	_renderAmountCell(cell, row, ingredientAmounts) {
+		return ingredientAmounts.length > 0 ? ingredientAmounts[cell].value : cell;
 	}
 
 	_renderTable() {
@@ -126,8 +142,9 @@ export default class IngredientManagementPage extends Component {
 		const selectRow = {
 			mode: 'checkbox',  // multi select
 			clickToSelectAndEditCell: true,
-			className: '',
+			className: 'row-selected',
 			onSelect: this._onSelect,
+			onSelectAll: this._onSelectAll,
 		};
 
 		const cellEdit = {
@@ -139,12 +156,11 @@ export default class IngredientManagementPage extends Component {
 			<div>
 				<div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
 					<Button onClick={() => this.addModal.open()}>Add new ingredients</Button>
-					<Button onClick={() => this.deleteModal.open()}>Delete ingredients</Button>
+					<Button disabled={Object.keys(this.state.selectedRows).length < 1} onClick={() => this.deleteModal.open()}>Delete ingredients</Button>
 				</div>
 
 				<BootstrapTable ref={(ref) => this.table = ref}
 					data={this.state.ingredients}
-					hover
 					options={options}
 					selectRow={selectRow}
 					cellEdit={cellEdit}
@@ -161,6 +177,8 @@ export default class IngredientManagementPage extends Component {
 						dataField="amount"
 						dataAlign="center"
 						dataSort
+						dataFormat={this._renderAmountCell}
+						formatExtraData={this.state.ingredientAmounts}
 						customEditor={{ getElement: this._getAmountEditor, customEditorParameters: { ingredientAmounts: this.state.ingredientAmounts } }}>
 						Amount
 					</TableHeaderColumn>

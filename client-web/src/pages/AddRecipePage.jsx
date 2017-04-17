@@ -19,7 +19,7 @@ export default class AddRecipePage extends Component {
 	}
 
 	componentWillMount() {
-		this.ingredientsRef = firebase.database().ref('/ingredients/');
+		this.ingredientsRef = firebase.database().ref('/ingredientsAmountLeft/');
 		this.ingredientsRef.on('value', this._onIngredientsReceived);
 	}
 

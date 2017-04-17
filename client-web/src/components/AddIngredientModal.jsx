@@ -36,7 +36,7 @@ export default class AddIngredientModal extends Component {
 			this.setState({ errorMsg: 'Amount cannot be empty', amountValidState: 'error' });
 		}
 		else {
-			this.ingredientsRef = firebase.database().ref(`/ingredients/${name}`).set(amount);
+			this.ingredientsRef = firebase.database().ref(`/ingredientsAmountLeft/${name}`).set(amount);
 			this.close();
 		}
 	}
