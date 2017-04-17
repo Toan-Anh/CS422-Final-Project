@@ -22,7 +22,7 @@ export default class RecipeManagementPage extends Component {
 	}
 
 	componentWillMount() {
-		this.recipesRef = firebase.database().ref('/recipes/');
+		this.recipesRef = firebase.database().ref('/recipe/');
 		this.recipesRef.on('value', this._onDataReceived);
 	}
 
@@ -37,7 +37,7 @@ export default class RecipeManagementPage extends Component {
 			recipes.push({
 				name: recipeName,
 				created: '',
-				updated: data[recipeName].ingredients,
+				updated: 'data[recipeName].ingredients',
 			});
 		})
 

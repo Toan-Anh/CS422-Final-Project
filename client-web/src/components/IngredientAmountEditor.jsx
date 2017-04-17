@@ -16,6 +16,8 @@ export default class IngredientAmountEditor extends Component {
 		};
 
 		this.updateData = this.updateData.bind(this);
+		console.log(this.props.defaultValue);
+		console.log(this.props.ingredientAmounts[this.props.defaultValue]);
 	}
 
 	focus() {
@@ -40,7 +42,7 @@ export default class IngredientAmountEditor extends Component {
 						>
 							{this.props.ingredientAmounts.map((amount, index) => {
 								return (
-									<option key={`amount_${amount.id}`} value={amount.value}>{amount.value}</option>
+									<option key={`amount_${amount.id}`} value={index}>{amount.value}</option>
 								);
 							})}
 						</FormControl>
