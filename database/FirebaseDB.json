@@ -1,0 +1,80 @@
+{
+    "users": {
+        "txson": {
+            "address": "356 Thoai Ngoc Hau",
+            "email": "txson@apcs.vn",
+            "gender": "male",
+            "phone": "01642840496",
+            "role": 1
+        }
+
+    },
+
+    "roles": {
+        "chef": 1
+    },
+
+    "dishes": {
+        "pho tai": {
+            "name": "pho tai",
+            "price": 30000,
+            "image": "url",
+            "available": true
+        }
+    },
+
+    "recipe": {
+        "pho tai": {
+            "0": "step 1",
+            "1": "step 2"
+        }
+    },
+
+    "ingredientsPerDish": {
+        "pho tai": {
+            "hanh": 50,
+            "toi": 50,
+            "bo tai": 250
+        }
+    },
+
+    "ingredientsAmountLeft": {
+        "hanh": 1,
+        "toi": 0,
+        "bo tai": 2
+    },
+
+    "ingredientsAmountMapping": {
+        "0": "không còn",
+        "1": "còn ít",
+        "2": "còn vừa đủ",
+        "3": "còn nhiều",
+        "4": "còn rất nhiều"
+    },
+
+    "tables": {
+        "ban 1": true,
+        "ban 2": true,
+        "ban 3": true
+    },
+
+    "orders": {
+        "ban 1": {
+            "0": {
+                "dishes": {
+                    "pho tai": 5
+                },
+                "state": "done"
+            },
+            "1": {
+                "dishes": {
+                    "pho tai": 4,
+                    "bun bo": 1
+                },
+                "state": "done"
+            }
+        }
+    },
+
+    "globalParams": {}
+}
