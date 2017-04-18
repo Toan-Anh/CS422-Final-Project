@@ -14,6 +14,7 @@ import * as firebase from 'firebase';
 import Sidebar from 'react-sidebar';
 import {
 	ReportPage,
+	DishManagementPage,
 	RecipeManagementPage,
 	IngredientManagementPage,
 	AddRecipePage
@@ -177,8 +178,9 @@ class App extends Component {
 
 						{/* Routes here */}
 						<Route path='/report' component={ReportPage} />
-						<Route path='/dish_management' component={ReportPage} />
+						<Route path='/dish_management' component={DishManagementPage} />
 						<Route path='/recipe_management' component={RecipeManagementPage} />
+						<Route path='/recipe_management/:recipe_name' component={RecipeManagementPage} />
 						<Route path='/ingredient_management' component={IngredientManagementPage} />
 
 						<Route path='/add_recipe' component={AddRecipePage} />

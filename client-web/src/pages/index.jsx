@@ -1,4 +1,5 @@
 import LogInPage from './LogInPage';
+import DishManagementPage from './DishManagementPage';
 import RecipeManagementPage from './RecipeManagementPage';
 import IngredientManagementPage from './IngredientManagementPage';
 import AddRecipePage from './AddRecipePage';
@@ -7,6 +8,7 @@ import NoMatch from './NoMatch';
 
 export {
 	LogInPage, 
+	DishManagementPage,
 	RecipeManagementPage, 
 	IngredientManagementPage, 
 	AddRecipePage, 

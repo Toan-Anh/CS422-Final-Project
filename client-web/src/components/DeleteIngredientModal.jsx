@@ -22,6 +22,7 @@ export default class DeleteIngredientModal extends Component {
 		Object.keys(this.props.toBeDeleted).forEach(name => {
 			this.ingredientsRef = firebase.database().ref(`/ingredientsAmountLeft/${name}`).remove();
 		})
+		this.props.afterDelete();
 		this.close();
 	}
 

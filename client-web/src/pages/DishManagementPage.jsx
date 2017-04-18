@@ -3,69 +3,52 @@ import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 import {
 	Button,
 } from 'react-bootstrap';
-import { AddIngredientModal, DeleteIngredientModal, IngredientAmountEditor } from '../components'
 // import { Route } from 'react-router';
 import * as firebase from 'firebase';
 import "../stylesheets/font-awesome-4.7.0/css/font-awesome.min.css";
 import "../stylesheets/react-bootstrap-table/react-bootstrap-table.css";
 
-export default class IngredientManagementPage extends Component {
+export default class DishManagementPage extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			ingredients: [],
-			ingredientAmounts: [],
+			dishes: [],
+			dishAmounts: [],
 			selectedRows: {},
 			loading: true,
 		};
 
-		this._onIngredientsReceived = this._onIngredientsReceived.bind(this);
-		this._onIngredientAmountReceived = this._onIngredientAmountReceived.bind(this);
+		this._onDishesReceived = this._onDishesReceived.bind(this);
 		this._onSelect = this._onSelect.bind(this);
 		this._onSelectAll = this._onSelectAll.bind(this);
 		this._getAmountEditor = this._getAmountEditor.bind(this);
 		this._updateAmount = this._updateAmount.bind(this);
-		this._renderAmountCell = this._renderAmountCell.bind(this);
+		this._renderNameCell = this._renderNameCell.bind(this);
+		this._renderImageCell = this._renderImageCell.bind(this);
+		this._renderPriceCell = this._renderPriceCell.bind(this);
+		this._renderExternalLinkCell = this._renderExternalLinkCell.bind(this);
+		this._renderAvailableCell = this._renderAvailableCell.bind(this);
 	}
 
 	componentWillMount() {
-		this.ingredientsRef = firebase.database().ref('/ingredientsAmountLeft/');
-		this.ingredientsRef.on('value', this._onIngredientsReceived);
-
-		this.ingredientAmountRef = firebase.database().ref('/ingredientsAmountMapping/');
-		this.ingredientAmountRef.on('value', this._onIngredientAmountReceived);
+		this.dishesRef = firebase.database().ref('/dishes/');
+		this.dishesRef.on('value', this._onDishesReceived);
 	}
 
 	componentWillUnmount() {
-		this.ingredientsRef.off('value', this._onIngredientsReceived);
-		this.ingredientAmountRef.off('value', this._onIngredientAmountReceived);
+		this.dishesRef.off('value', this._onDishesReceived);
 	}
 
-	_onIngredientsReceived(snapshot) {
+	_onDishesReceived(snapshot) {
 		let data = snapshot.val();
-		let ingredients = [];
-		Object.keys(data).forEach((ingredientName, index) => {
-			ingredients.push({
-				id: index + 1,
-				name: ingredientName,
-				amount: data[ingredientName],
+		let dishes = [];
+		Object.keys(data).forEach((dishName, index) => {
+			dishes.push({
+				...data[dishName],
 			});
 		})
 
-		this.setState({ ingredients: ingredients, loading: false });
-	}
-
-	_onIngredientAmountReceived(snapshot) {
-		let data = snapshot.val();
-		let amounts = [];
-		Object.keys(data).forEach((id, index) => {
-			amounts.push({
-				id: id,
-				value: data[id],
-			});
-		})
-
-		this.setState({ ingredientAmounts: amounts, loading: false });
+		this.setState({ dishes: dishes, loading: false });
 	}
 
 	_onSelect(row, isSelected, e) {
@@ -95,32 +78,67 @@ export default class IngredientManagementPage extends Component {
 
 	_renderAddModal() {
 		return (
-			<AddIngredientModal ref={ref => this.addModal = ref} ingredientAmounts={this.state.ingredientAmounts} />
+			null
 		);
 	}
 
 	_renderDeleteModal() {
 		return (
-			<DeleteIngredientModal ref={ref => this.deleteModal = ref}
-				toBeDeleted={this.state.selectedRows}
-				afterDelete={() => { this.setState({ selectedRows: {} }) }} />
+			null
 		);
 	}
 
 	_getAmountEditor(onUpdate, props) {
 		return (
-			<IngredientAmountEditor onUpdate={onUpdate} {...props} />
+			null
 		);
 	}
 
 	_updateAmount(row, cellName, cellValue) {
-		firebase.database().ref(`/ingredientsAmountLeft/${row.name}`).set(cellValue);
+		firebase.database().ref(`/dishesAmountLeft/${row.name}`).set(cellValue);
 	}
 
-	_renderAmountCell(cell, row, ingredientAmounts) {
-		return ingredientAmounts.length > 0 ?
-			<span style={{ color: `hsl(${120 * cell / Object.keys(ingredientAmounts).length}, 80%, 50%)` }}>{ingredientAmounts[cell].value}</span> :
-			cell;
+	_renderAvailableCell(cell, row) {
+		return (
+			<i className={cell ? "fa fa-check-square" : "fa fa-square-o"}
+				style={{ color: `rgba(0, 0, 0, ${(cell ? 1 : 0.5)})` }}
+			/>
+		);
+	}
+
+	_renderExternalLinkCell(cell, row) {
+		return (
+			<i className="fa fa-external-link clickable"
+				onClick={(e) => { e.stopPropagation(); console.log(cell) }}
+			/>
+		);
+	}
+
+	_renderPriceCell(cell, row) {
+		return (
+			<div style={{ color: `rgba(0, 0, 0, ${(row.available ? 1 : 0.5)})` }}>
+				{cell.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+			</div>
+		);
+	}
+
+	_renderImageCell(cell, row) {
+		return (
+			<img
+				alt={row.name}
+				src={cell}
+				width='100%'
+				style={{ opacity: `${row.available ? 1 : 0.5}` }}
+			/>
+		);
+	}
+
+	_renderNameCell(cell, row) {
+		return (
+			<div style={{ color: `rgba(0, 0, 0, ${(row.available ? 1 : 0.5)})` }}>
+				{cell}
+			</div>
+		);
 	}
 
 	_renderTable() {
@@ -159,32 +177,59 @@ export default class IngredientManagementPage extends Component {
 		return (
 			<div>
 				<div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-					<Button onClick={() => this.addModal.open()}>Add new ingredients</Button>
-					<Button disabled={Object.keys(this.state.selectedRows).length < 1} onClick={() => this.deleteModal.open()}>Delete ingredients</Button>
+					<Button onClick={() => this.addModal.open()}>Add new dishes</Button>
+					<Button disabled={Object.keys(this.state.selectedRows).length < 1} onClick={() => this.deleteModal.open()}>Delete dishes</Button>
 				</div>
 
 				<BootstrapTable ref={(ref) => this.table = ref}
-					data={this.state.ingredients}
+					data={this.state.dishes}
 					options={options}
 					selectRow={selectRow}
 					cellEdit={cellEdit}
 					{...styles}>
 
+					<TableHeaderColumn
+						dataField="image"
+						dataAlign="center"
+						width='40%'
+						dataSort
+						dataFormat={this._renderImageCell}>
+						Price
+					</TableHeaderColumn>
+
 					<TableHeaderColumn isKey
 						dataField="name"
 						dataAlign="center"
-						dataSort>
-						Ingredient
-						</TableHeaderColumn>
+						width='20%'
+						dataSort
+						dataFormat={this._renderNameCell}>
+						Name
+					</TableHeaderColumn>
 
 					<TableHeaderColumn
-						dataField="amount"
+						dataField="price"
 						dataAlign="center"
+						width='20%'
 						dataSort
-						dataFormat={this._renderAmountCell}
-						formatExtraData={this.state.ingredientAmounts}
-						customEditor={{ getElement: this._getAmountEditor, customEditorParameters: { ingredientAmounts: this.state.ingredientAmounts } }}>
-						Amount
+						dataFormat={this._renderPriceCell}>
+						Price
+					</TableHeaderColumn>
+
+					<TableHeaderColumn
+						dataField="available"
+						dataAlign="center"
+						width='10%'
+						dataSort
+						dataFormat={this._renderAvailableCell}>
+						Available
+					</TableHeaderColumn>
+
+					<TableHeaderColumn
+						dataAlign="center"
+						width="10%"
+						dataFormat={this._renderExternalLinkCell}
+						editable={false}>
+						Recipe
 					</TableHeaderColumn>
 
 				</BootstrapTable>
@@ -205,7 +250,7 @@ export default class IngredientManagementPage extends Component {
 		return (
 			<div className='form-container'>
 
-				<h1 id='title'>Ingredients</h1>
+				<h1 id='title'>Dishes</h1>
 
 				{this.state.loading ? this._renderLoading() : this._renderTable()}
 				{this._renderAddModal()}

@@ -29,6 +29,8 @@ export default class AddIngredientModal extends Component {
 		let name = this.newIngrName.value;
 		let amount = this.newIngrAmount.value;
 
+		console.log(name, amount);
+
 		if (!name || name === '') {
 			this.setState({ errorMsg: 'Ingredient name cannot be empty', nameValidState: 'error' });
 		}
@@ -75,7 +77,7 @@ export default class AddIngredientModal extends Component {
 							>
 								{this.props.ingredientAmounts.map((amount, index) => {
 									return (
-										<option key={`amount_${amount.id}`} value={amount.value}>{amount.value}</option>
+										<option key={`amount_${amount.id}`} value={index}>{amount.value}</option>
 									);
 								})}
 							</FormControl>
