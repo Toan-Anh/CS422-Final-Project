@@ -12,22 +12,17 @@ import {
   View
 } from 'react-native';
 
+import LogInScreen from './src/screens/LogIn/LogInScreen';
+import { Scene, Router } from 'react-native-router-flux';
+
 export default class ClientReactNative extends Component {
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
-      </View>
-    );
+      <Router>
+        <Scene key="root" hideNavBar>
+          <Scene key="login" component={LogInScreen} />
+        </Scene>
+      </Router>)
   }
 }
 
