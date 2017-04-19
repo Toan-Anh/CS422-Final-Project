@@ -13,7 +13,20 @@ import {
 } from 'react-native';
 
 import LogInScreen from './src/screens/LogIn/LogInScreen';
+import MainScreen from './src/screens/MainScreen';
 import { Scene, Router } from 'react-native-router-flux';
+
+import * as firebase from 'firebase';
+
+var config = {
+  apiKey: "AIzaSyChH5O7-ZtDqB53Qpv7dYo78co2RP5gyT8",
+  authDomain: "mini-restaurant-management.firebaseapp.com",
+  databaseURL: "https://mini-restaurant-management.firebaseio.com",
+  projectId: "mini-restaurant-management",
+  storageBucket: "mini-restaurant-management.appspot.com",
+  messagingSenderId: "927567795857"
+};
+firebase.initializeApp(config);
 
 export default class ClientReactNative extends Component {
   render() {
@@ -21,6 +34,7 @@ export default class ClientReactNative extends Component {
       <Router>
         <Scene key="root" hideNavBar>
           <Scene key="login" component={LogInScreen} />
+          <Scene key="mainscreen" component={MainScreen} />
         </Scene>
       </Router>)
   }

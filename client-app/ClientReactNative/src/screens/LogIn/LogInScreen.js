@@ -3,30 +3,38 @@ import {
     AppRegistry,
     StyleSheet,
     Text,
-    View
+    View,
+    ActivityIndicator
 } from 'react-native';
 
 import { Container, Content, Form, Item, Input, Header, Title, ListItem, List, InputGroup, Icon, Button, Body } from 'native-base';
+import { Actions } from 'react-native-router-flux';
+
+import * as firebase from 'firebase';
 
 class LogInScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
             email: '',
-            password: ''
+            password: '',
+            loading: false,
         }
 
+        this._logIn = this._logIn.bind(this);
     }
 
     render() {
-        return (
-            <Container>
-                <Header>
-                    <Body>
-                        <Title>Login</Title>
-                    </Body>
-                </Header>
-                <Content>
+        var content = this.state.loading ?
+            (<View style={{
+                flex: 1,
+                alignSelf: 'stretch',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}>
+                <ActivityIndicator size="large" />
+            </View>) : (
+                <View>
                     <List>
                         <ListItem>
                             <InputGroup>
@@ -48,13 +56,43 @@ class LogInScreen extends Component {
                             </InputGroup>
                         </ListItem>
                     </List>
-                    <Button block primary>
+                    <Button block primary onPress={this._logIn}>
                         <Text style={{ color: 'white' }}> Log in </Text>
                     </Button>
-
+                </View>
+            );
+        return (
+            <Container>
+                <Header>
+                    <Body>
+                        <Title>Login</Title>
+                    </Body>
+                </Header>
+                <Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}>
+                    {content}
                 </Content>
             </Container>
         )
+    }
+
+    _logIn() {
+        this.setState({ loading: true });
+        firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
+            .then((a) => {
+                Actions.mainscreen();
+            })
+            .catch((error) => {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+
+                if (errorCode || errorMessage) {
+                    console.log('errorCode', errorCode);
+                    console.log('errorMessage', errorMessage);
+                    this.setState({ loading: false });
+                    this._alertError(errorMessage);
+                }
+            });
     }
 }
 
