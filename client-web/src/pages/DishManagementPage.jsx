@@ -7,7 +7,7 @@ import {
 	FormGroup,
 	FormControl,
 } from 'react-bootstrap';
-import { AddDishModal, DeleteDishModal } from '../components'
+import { AddDishModal, DeleteDishModal, ImageSourceEditor } from '../components'
 // import { Route } from 'react-router';
 import * as firebase from 'firebase';
 import "../stylesheets/font-awesome-4.7.0/css/font-awesome.min.css";
@@ -29,7 +29,7 @@ export default class DishManagementPage extends Component {
 		this._onSelect = this._onSelect.bind(this);
 		this._onSelectAll = this._onSelectAll.bind(this);
 		this._onSearch = this._onSearch.bind(this);
-		this._getAmountEditor = this._getAmountEditor.bind(this);
+		this._getImageEditor = this._getImageEditor.bind(this);
 		this._updateCell = this._updateCell.bind(this);
 		this._renderNameCell = this._renderNameCell.bind(this);
 		this._renderImageCell = this._renderImageCell.bind(this);
@@ -107,15 +107,15 @@ export default class DishManagementPage extends Component {
 		);
 	}
 
-	_getAmountEditor(onUpdate, props) {
+	_getImageEditor(onUpdate, props) {
 		return (
-			null
+			<ImageSourceEditor onUpdate={onUpdate} {...props} />
 		);
 	}
 
 	_updateCell(row, cellName, cellValue) {
-		if (cellName === 'price')
-			firebase.database().ref(`/dishes/${row.name}/price`).set(parseInt(cellValue, 10));
+		if (cellName === 'image')
+			firebase.database().ref(`/dishes/${row.name}/image`).set(cellValue);
 	}
 
 	_renderAvailableCell(cell, row) {
@@ -229,7 +229,8 @@ export default class DishManagementPage extends Component {
 						dataAlign="center"
 						width='40%'
 						dataSort
-						dataFormat={this._renderImageCell}>
+						dataFormat={this._renderImageCell}
+						customEditor={{ getElement: this._getImageEditor, customEditorParameters: { ingredientAmounts: this.state.ingredientAmounts } }}>
 						Price
 					</TableHeaderColumn>
 

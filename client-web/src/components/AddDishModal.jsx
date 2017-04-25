@@ -10,7 +10,6 @@ import {
 } from 'react-bootstrap';
 import * as firebase from 'firebase';
 import "../stylesheets/font-awesome-4.7.0/css/font-awesome.min.css";
-import "../stylesheets/font-awesome-4.7.0/css/font-awesome.min.css";
 
 export default class AddDishModal extends Component {
 	constructor(props) {
@@ -147,8 +146,6 @@ export default class AddDishModal extends Component {
 								inputRef={ref => this.newDishImage = ref}
 								onChange={this._onFileChange}
 							/>
-							<i />
-
 							{
 								this.state.imageFile ?
 									<img alt='Dish illustration' width="100%" src={this.state.imageData} /> :

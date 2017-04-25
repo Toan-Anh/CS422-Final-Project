@@ -17,7 +17,6 @@ import {
 	DishManagementPage,
 	RecipeManagementPage,
 	IngredientManagementPage,
-	AddRecipePage,
 	RecipeDetailPage,
 } from './pages';
 
@@ -183,8 +182,6 @@ class App extends Component {
 						<Route exact path='/recipe_management' component={RecipeManagementPage} />
 						<Route path='/recipe_management/:recipe_name' component={RecipeDetailPage} />
 						<Route path='/ingredient_management' component={IngredientManagementPage} />
-
-						<Route path='/add_recipe' component={AddRecipePage} />
 
 					</div>
 
