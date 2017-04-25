@@ -2,7 +2,12 @@ import React, { Component } from 'react';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 import {
 	Button,
+	Row,
+	Col,
+	FormGroup,
+	FormControl,
 } from 'react-bootstrap';
+import { AddDishModal, DeleteDishModal } from '../components'
 // import { Route } from 'react-router';
 import * as firebase from 'firebase';
 import "../stylesheets/font-awesome-4.7.0/css/font-awesome.min.css";
@@ -18,11 +23,14 @@ export default class DishManagementPage extends Component {
 			loading: true,
 		};
 
+		this.dishes = [];
+
 		this._onDishesReceived = this._onDishesReceived.bind(this);
 		this._onSelect = this._onSelect.bind(this);
 		this._onSelectAll = this._onSelectAll.bind(this);
+		this._onSearch = this._onSearch.bind(this);
 		this._getAmountEditor = this._getAmountEditor.bind(this);
-		this._updateAmount = this._updateAmount.bind(this);
+		this._updateCell = this._updateCell.bind(this);
 		this._renderNameCell = this._renderNameCell.bind(this);
 		this._renderImageCell = this._renderImageCell.bind(this);
 		this._renderPriceCell = this._renderPriceCell.bind(this);
@@ -41,14 +49,14 @@ export default class DishManagementPage extends Component {
 
 	_onDishesReceived(snapshot) {
 		let data = snapshot.val();
-		let dishes = [];
+		this.dishes = [];
 		Object.keys(data).forEach((dishName, index) => {
-			dishes.push({
+			this.dishes.push({
 				...data[dishName],
 			});
 		})
 
-		this.setState({ dishes: dishes, loading: false });
+		this.setState({ dishes: this.dishes, loading: false });
 	}
 
 	_onSelect(row, isSelected, e) {
@@ -72,19 +80,30 @@ export default class DishManagementPage extends Component {
 		return true;
 	}
 
+	_onSearch(e) {
+		let dishes = [];
+		this.dishes.forEach(item => {
+			if (item.name.toLowerCase().includes(e.target.value.toLowerCase()))
+				dishes.push(item);
+		})
+		this.setState({ dishes: dishes });
+	}
+
 	_renderHelp() {
 		return (null);
 	}
 
 	_renderAddModal() {
 		return (
-			null
+			<AddDishModal ref={ref => this.addModal = ref} />
 		);
 	}
 
 	_renderDeleteModal() {
 		return (
-			null
+			<DeleteDishModal ref={ref => this.deleteModal = ref}
+				toBeDeleted={this.state.selectedRows}
+				afterDelete={() => { this.setState({ selectedRows: {} }) }} />
 		);
 	}
 
@@ -94,14 +113,19 @@ export default class DishManagementPage extends Component {
 		);
 	}
 
-	_updateAmount(row, cellName, cellValue) {
-		firebase.database().ref(`/dishesAmountLeft/${row.name}`).set(cellValue);
+	_updateCell(row, cellName, cellValue) {
+		if (cellName === 'price')
+			firebase.database().ref(`/dishes/${row.name}/price`).set(parseInt(cellValue, 10));
 	}
 
 	_renderAvailableCell(cell, row) {
 		return (
-			<i className={cell ? "fa fa-check-square" : "fa fa-square-o"}
+			<i className={`clickable fa ${cell ? "fa-check-square" : "fa-square-o"}`}
 				style={{ color: `rgba(0, 0, 0, ${(cell ? 1 : 0.5)})` }}
+				onClick={(e) => {
+					e.stopPropagation();
+					firebase.database().ref(`/dishes/${row.name}/available`).set(!row.available);
+				}}
 			/>
 		);
 	}
@@ -109,7 +133,7 @@ export default class DishManagementPage extends Component {
 	_renderExternalLinkCell(cell, row) {
 		return (
 			<i className="fa fa-external-link clickable"
-				onClick={(e) => { e.stopPropagation(); console.log(cell) }}
+				onClick={(e) => { e.stopPropagation(); this.props.history.push(`/recipe_management/${cell}`) }}
 			/>
 		);
 	}
@@ -171,15 +195,27 @@ export default class DishManagementPage extends Component {
 
 		const cellEdit = {
 			mode: 'dbclick', // double click cell to edit
-			beforeSaveCell: this._updateAmount,
+			beforeSaveCell: this._updateCell,
 		};
 
 		return (
 			<div>
-				<div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-					<Button onClick={() => this.addModal.open()}>Add new dishes</Button>
-					<Button disabled={Object.keys(this.state.selectedRows).length < 1} onClick={() => this.deleteModal.open()}>Delete dishes</Button>
-				</div>
+				<Row>
+					<Col xs={12} sm={7}>
+						<FormGroup controlId="formQuery" style={{ margin: 0 }}>
+							<FormControl
+								type="text"
+								placeholder="Search"
+								onChange={this._onSearch}
+							/>
+						</FormGroup>
+					</Col>
+
+					<Col xs={12} sm={5} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+						<Button onClick={() => this.addModal.open()}>Add new dishes</Button>
+						<Button disabled={Object.keys(this.state.selectedRows).length < 1} onClick={() => this.deleteModal.open()}>Delete dishes</Button>
+					</Col>
+				</Row>
 
 				<BootstrapTable ref={(ref) => this.table = ref}
 					data={this.state.dishes}
@@ -220,15 +256,16 @@ export default class DishManagementPage extends Component {
 						dataAlign="center"
 						width='10%'
 						dataSort
-						dataFormat={this._renderAvailableCell}>
+						dataFormat={this._renderAvailableCell}
+						editable={false}>
 						Available
 					</TableHeaderColumn>
 
 					<TableHeaderColumn
+						dataField='name'
 						dataAlign="center"
 						width="10%"
-						dataFormat={this._renderExternalLinkCell}
-						editable={false}>
+						dataFormat={this._renderExternalLinkCell}>
 						Recipe
 					</TableHeaderColumn>
 

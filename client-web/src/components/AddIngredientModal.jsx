@@ -32,14 +32,21 @@ export default class AddIngredientModal extends Component {
 		console.log(name, amount);
 
 		if (!name || name === '') {
-			this.setState({ errorMsg: 'Ingredient name cannot be empty', nameValidState: 'error' });
+			this.setState({ errorMsg: 'Ingredient name cannot be empty', nameValidState: 'error', amountValidState: null });
 		}
 		else if (!amount || amount === '') {
-			this.setState({ errorMsg: 'Amount cannot be empty', amountValidState: 'error' });
+			this.setState({ errorMsg: 'Amount cannot be empty', amountValidState: 'error', nameValidState: null });
 		}
 		else {
-			this.ingredientsRef = firebase.database().ref(`/ingredientsAmountLeft/${name}`).set(amount);
-			this.close();
+			firebase.database().ref(`/ingredientsAmountLeft`).once('value', (snapshot) => {
+				if (!snapshot.hasChild(name)) {
+					this.ingredientsRef = firebase.database().ref(`/ingredientsAmountLeft/${name}`).set(amount);
+					this.close();
+				}
+				else {
+					this.setState({ errorMsg: 'Ingredient already exists', nameValidState: 'error', amountValidState: null });
+				}
+			})
 		}
 	}
 

@@ -17,7 +17,8 @@ import {
 	DishManagementPage,
 	RecipeManagementPage,
 	IngredientManagementPage,
-	AddRecipePage
+	AddRecipePage,
+	RecipeDetailPage,
 } from './pages';
 
 import './stylesheets/App.css';
@@ -139,17 +140,17 @@ class App extends Component {
 	_changeTab(index) {
 		let item = this.tabs[index];
 		if (this.state.currentTab === -1)
-			this.props.history.replace(item.path)
+			this.props.history.replace(item.path);
 		else
-			this.props.history.push(item.path)
+			this.props.history.push(item.path);
 		document.title = 'MMS - ' + item.title;
 		this.setState({ currentTab: index, sidebarOpen: this.state.sidebarDocked });
 	}
 
 	_renderSideBarContent() {
 		return (
-			<div>
-				<img id='sidebar-logo' alt='logo' src={require('./res/logo.svg')} />
+			<div className="sidebar-container">
+				<img id='sidebar-logo' alt='logo' src={require('./res/logo.svg')}/>
 				{this.tabs.map((item, index) => {
 					return (
 						<div key={item.path}
@@ -179,8 +180,8 @@ class App extends Component {
 						{/* Routes here */}
 						<Route path='/report' component={ReportPage} />
 						<Route path='/dish_management' component={DishManagementPage} />
-						<Route path='/recipe_management' component={RecipeManagementPage} />
-						<Route path='/recipe_management/:recipe_name' component={RecipeManagementPage} />
+						<Route exact path='/recipe_management' component={RecipeManagementPage} />
+						<Route path='/recipe_management/:recipe_name' component={RecipeDetailPage} />
 						<Route path='/ingredient_management' component={IngredientManagementPage} />
 
 						<Route path='/add_recipe' component={AddRecipePage} />

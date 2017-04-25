@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 import {
 	Button,
+	FormGroup,
+	FormControl,
+	Row,
+	Col,
 } from 'react-bootstrap';
 import { AddIngredientModal, DeleteIngredientModal, IngredientAmountEditor } from '../components'
 // import { Route } from 'react-router';
@@ -19,10 +23,13 @@ export default class IngredientManagementPage extends Component {
 			loading: true,
 		};
 
+		this.ingredients = [];
+
 		this._onIngredientsReceived = this._onIngredientsReceived.bind(this);
 		this._onIngredientAmountReceived = this._onIngredientAmountReceived.bind(this);
 		this._onSelect = this._onSelect.bind(this);
 		this._onSelectAll = this._onSelectAll.bind(this);
+		this._onSearch = this._onSearch.bind(this);
 		this._getAmountEditor = this._getAmountEditor.bind(this);
 		this._updateAmount = this._updateAmount.bind(this);
 		this._renderAmountCell = this._renderAmountCell.bind(this);
@@ -43,16 +50,16 @@ export default class IngredientManagementPage extends Component {
 
 	_onIngredientsReceived(snapshot) {
 		let data = snapshot.val();
-		let ingredients = [];
+		this.ingredients = [];
 		Object.keys(data).forEach((ingredientName, index) => {
-			ingredients.push({
+			this.ingredients.push({
 				id: index + 1,
 				name: ingredientName,
 				amount: data[ingredientName],
 			});
 		})
 
-		this.setState({ ingredients: ingredients, loading: false });
+		this.setState({ ingredients: this.ingredients, loading: false });
 	}
 
 	_onIngredientAmountReceived(snapshot) {
@@ -114,13 +121,23 @@ export default class IngredientManagementPage extends Component {
 	}
 
 	_updateAmount(row, cellName, cellValue) {
-		firebase.database().ref(`/ingredientsAmountLeft/${row.name}`).set(cellValue);
+		if (cellName === 'amount')
+			firebase.database().ref(`/ingredientsAmountLeft/${row.name}`).set(cellValue);
 	}
 
 	_renderAmountCell(cell, row, ingredientAmounts) {
 		return ingredientAmounts.length > 0 ?
 			<span style={{ color: `hsl(${120 * cell / Object.keys(ingredientAmounts).length}, 80%, 50%)` }}>{ingredientAmounts[cell].value}</span> :
 			cell;
+	}
+
+	_onSearch(e) {
+		let ingredients = [];
+		this.ingredients.forEach(item => {
+			if (item.name.toLowerCase().includes(e.target.value.toLowerCase()))
+				ingredients.push(item);
+		})
+		this.setState({ ingredients: ingredients });
 	}
 
 	_renderTable() {
@@ -158,10 +175,28 @@ export default class IngredientManagementPage extends Component {
 
 		return (
 			<div>
-				<div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-					<Button onClick={() => this.addModal.open()}>Add new ingredients</Button>
-					<Button disabled={Object.keys(this.state.selectedRows).length < 1} onClick={() => this.deleteModal.open()}>Delete ingredients</Button>
-				</div>
+				{/*<div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>*/}
+				<Row>
+					<Col xs={12} sm={7}>
+						<FormGroup controlId="formQuery" style={{ margin: 0 }}>
+							<FormControl
+								type="text"
+								placeholder="Search"
+								onChange={this._onSearch}
+							/>
+						</FormGroup>
+					</Col>
+
+					<Col xs={12} sm={5} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+						<Button pullRight onClick={() => this.addModal.open()}>Add new ingredients</Button>
+						<Button disabled={Object.keys(this.state.selectedRows).length < 1} onClick={() => this.deleteModal.open()}>Delete ingredients</Button>
+					</Col>
+
+				</Row>
+
+
+
+				{/*</div>*/}
 
 				<BootstrapTable ref={(ref) => this.table = ref}
 					data={this.state.ingredients}

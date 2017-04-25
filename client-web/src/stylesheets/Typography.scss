@@ -1,5 +1,12 @@
 @import 'Variables.scss';
 
+@font-face {
+  font-family: 'VNF-Oswald';
+  src: url('../res/VNF-Oswald Regular.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .web-text {
 	font-family: $font-stack;
 	color: $font-color;
@@ -7,11 +14,16 @@
 
 h1 {
 	@extend .web-text;
-	font-family: "Oswald", Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	font-family: "VNF-Oswald", Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
 
 h2 {
 	@extend .web-text;
+	color: rgba(0, 0, 0, 0.50);
+	padding-top: 12px;
+	padding-bottom: 12px;
+	margin-bottom: 28px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.50);
 }
 
 h3 {
