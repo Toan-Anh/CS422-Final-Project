@@ -16,8 +16,6 @@ export default class IngredientAmountEditor extends Component {
 		};
 
 		this.updateData = this.updateData.bind(this);
-		console.log(this.props.defaultValue);
-		console.log(this.props.ingredientAmounts[this.props.defaultValue]);
 	}
 
 	focus() {

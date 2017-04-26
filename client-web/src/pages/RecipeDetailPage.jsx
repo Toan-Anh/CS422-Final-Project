@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
+import { RecipeEditor } from '../components'
+import { Button } from 'react-bootstrap'
 import * as firebase from 'firebase';
 import "../stylesheets/font-awesome-4.7.0/css/font-awesome.min.css";
 import "../stylesheets/react-bootstrap-table/react-bootstrap-table.css";
@@ -13,6 +15,7 @@ export default class RecipeDetailPage extends Component {
 		this.state = {
 			recipe: { ingredients: [] },
 			loading: true,
+			editing: false,
 		};
 
 		this._onRecipeReceived = this._onRecipeReceived.bind(this);
@@ -33,7 +36,10 @@ export default class RecipeDetailPage extends Component {
 	}
 
 	_onRecipeReceived(snapshot) {
-		this.setState({ recipe: Object.assign({}, this.state.recipe, snapshot.val()), loading: false });
+		let recipe = Object.assign({}, this.state.recipe, snapshot.val());
+		if (!recipe.steps)
+			recipe.steps = [];
+		this.setState({ recipe: recipe, loading: false });
 	}
 
 	_onIngredientsReceived(snapshot) {
@@ -54,6 +60,14 @@ export default class RecipeDetailPage extends Component {
 				<p id='loading'>Loading...</p>
 			</div>
 		);
+	}
+
+	_renderRecipeEditor() {
+		return <RecipeEditor
+			recipeName={this.props.match.params.recipe_name}
+			recipe={Object.assign({}, this.state.recipe)}
+			ref={(ref) => this.recipeEditor = ref}
+		/>
 	}
 
 	_renderRecipe() {
@@ -79,33 +93,68 @@ export default class RecipeDetailPage extends Component {
 
 				<h2>Instructions</h2>
 				{
-					this.state.recipe.steps ? 
-					this.state.recipe.steps.map((step, index) => {
-					let image = null;
-					if (step.image)
-						image = <img alt={`${this.state.recipe.name} - Step ${index + 1}`}
-							src={step.image} width='80%' />
-					return (
-						<div key={`step_${index + 1}`}>
-							<h3>{`Step ${index + 1}`}</h3>
-							<p>{step.description}</p>
-							{image}
-						</div>
-					);
-				}) : 
-				<p>No instruction</p>
+					this.state.recipe.steps && this.state.recipe.steps.length > 0 ?
+						this.state.recipe.steps.map((step, index) => {
+							let image = null;
+							if (step.image)
+								image = <img alt={`${this.state.recipe.name} - Step ${index + 1}`}
+									src={step.image} width='80%' />
+							return (
+								<div key={`step_${index + 1}`}>
+									<h3>{`Step ${index + 1}`}</h3>
+									<p>{step.description}</p>
+									{image}
+								</div>
+							);
+						}) :
+						<p>No instruction</p>
 				}
 			</div>
 		);
 	}
 
+	_saveRecipe() {
+		this.recipeEditor.getData((newRecipe) => {
+			this.recipeRef.set(newRecipe);
+			this.setState({ editing: false });
+		});
+	}
+
 	render() {
+		let content = this.state.editing ? this._renderRecipeEditor() : this._renderRecipe();
+		let editButton = null;
+		if (!this.state.loading && !this.state.editing)
+			editButton = (
+				<span>
+					<Button bsStyle='primary'
+						onClick={(e) => { this.setState({ editing: true }) }}>
+						Edit recipe
+					</Button>
+				</span>
+			);
+		else if (!this.state.loading)
+			editButton = (
+				<span>
+					<Button onClick={(e) => { this.setState({ editing: false }) }}>
+						Cancel editing
+					</Button>
+
+					<Button bsStyle='primary'
+						onClick={(e) => { this._saveRecipe() }}>
+						Save recipe
+					</Button>
+				</span>
+			);
+
 		return (
 			<div className='form-container'>
 
-				<h1 id='title'>{this.props.match.params.recipe_name}</h1>
+				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+					<h1 id='title'>{this.props.match.params.recipe_name}</h1>
+					{editButton}
+				</div>
 
-				{this.state.loading ? this._renderLoading() : this._renderRecipe()}
+				{this.state.loading ? this._renderLoading() : content}
 
 			</div>
 		);
