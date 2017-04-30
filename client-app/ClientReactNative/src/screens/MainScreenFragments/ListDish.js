@@ -6,6 +6,7 @@ import {
     View
 } from 'react-native';
 import { Fab, Button, Icon,  } from 'native-base';
+import FancyTable from '../../modules/FancyTable';
 
 
 class ListDish extends Component {
@@ -19,6 +20,7 @@ class ListDish extends Component {
     render() {
         return (
             <View style={{flex: 1, alignSelf: 'stretch'}}>
+                <FancyTable/>
                 <Fab
                     active={this.state.active}
                     containerStyle={{ marginLeft: 10 }}
