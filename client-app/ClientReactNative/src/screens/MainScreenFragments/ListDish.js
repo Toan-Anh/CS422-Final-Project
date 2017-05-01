@@ -7,13 +7,13 @@ import {
 } from 'react-native';
 import { Fab, Button, Icon,  } from 'native-base';
 import FancyTable from '../../modules/FancyTable';
+import CreateOrderFAB from '../../modules/CreateOrderFAB';
 
 
 class ListDish extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            active: false
         }
     }
 
@@ -21,22 +21,7 @@ class ListDish extends Component {
         return (
             <View style={{flex: 1, alignSelf: 'stretch'}}>
                 <FancyTable/>
-                <Fab
-                    active={this.state.active}
-                    containerStyle={{ marginLeft: 10 }}
-                    style={{ backgroundColor: '#5067FF' }}
-                    onPress={() => this.setState({ active: !this.state.active })}>
-                    <Icon name="md-share" />
-                    <Button style={{ backgroundColor: '#34A34F' }}>
-                        <Icon name="logo-whatsapp" />
-                    </Button>
-                    <Button style={{ backgroundColor: '#3B5998' }}>
-                        <Icon name="logo-facebook" />
-                    </Button>
-                    <Button disabled style={{ backgroundColor: '#DD5144' }}>
-                        <Icon name="ios-mail" />
-                    </Button>
-                </Fab>
+                <CreateOrderFAB/>
             </View>
         )
     }
