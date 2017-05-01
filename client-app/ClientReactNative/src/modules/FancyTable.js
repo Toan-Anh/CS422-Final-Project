@@ -83,7 +83,7 @@ export default class FancyTable extends Component {
     _renderCell(item, i) {
         return (
             <View style={styles.cellContainer} key={i}>
-                <Text>
+                <Text style={styles.cellText}>
                     {item}
                 </Text>
             </View>
@@ -98,10 +98,12 @@ export default class FancyTable extends Component {
 const styles = StyleSheet.create({
     titleContainer: {
         backgroundColor: '#DCDCDC',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        borderLeftWidth: 1
     },
     itemContainer: {
         flexDirection: 'row',
+        borderLeftWidth: 1
 
     },
     list: {
@@ -109,12 +111,18 @@ const styles = StyleSheet.create({
     },
     container: {
         flexDirection: 'column',
-        flex: 1
+        flex: 1,
+        borderTopWidth: 1,
+        margin: 10
     },
     cellContainer: {
         flex: 1,
         borderRightWidth: 1,
         borderBottomWidth: 1
+    },
+    cellText: {
+        padding: 3, 
+        color: 'black'
     }
 });
 
