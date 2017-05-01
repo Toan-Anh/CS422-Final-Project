@@ -7,9 +7,10 @@ import {
 } from 'react-native';
 
 import * as firebase from 'firebase';
-import { Container, Content, Tab, Tabs, Header, Body, Title } from 'native-base';
+import { Container, Content, Tab, Tabs, Header, Body, Title, StyleProvider, getTheme } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 import ListDish from './MainScreenFragments/ListDish';
+import variables from '../../native-base-theme/variables/platform';
 
 class MainScreen extends Component {
     constructor(props) {
@@ -32,21 +33,23 @@ class MainScreen extends Component {
 
     render() {
         return (
-            <Container>
-                <Header hasTabs>
-                    <Body>
-                        <Title>Main Menu</Title>
-                    </Body>
-                </Header>
-                <Tabs>
-                    <Tab heading="List Order">
-                        <ListDish />
-                    </Tab>
-                    <Tab heading="Notification">
-                        <View />
-                    </Tab>
-                </Tabs>
-            </Container>
+            <StyleProvider style={getTheme(variables)}>
+                <Container>
+                    <Header hasTabs>
+                        <Body>
+                            <Title>Main Menu</Title>
+                        </Body>
+                    </Header>
+                    <Tabs>
+                        <Tab heading="List Order">
+                            <ListDish />
+                        </Tab>
+                        <Tab heading="Notification">
+                            <View />
+                        </Tab>
+                    </Tabs>
+                </Container>
+            </StyleProvider>
         );
     }
 

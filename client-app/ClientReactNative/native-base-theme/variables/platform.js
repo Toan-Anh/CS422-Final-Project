@@ -6,6 +6,7 @@ const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
 const platform = Platform.OS;
 const platformStyle = 'material';
+const mainColor = '#e67e22';
 
 export default {
   platformStyle,
@@ -149,8 +150,8 @@ export default {
   tabActiveBgColor: (platform === 'ios') ? '#cde1f9' : '#3F51B5',
 
     // Tab
-  tabDefaultBg: (platform === 'ios') ? '#F8F8F8' : '#3F51B5',
-  topTabBarTextColor: (platform === 'ios') ? '#6b6b6b' : '#b3c7f9',
+  tabDefaultBg: (platform === 'ios') ? '#F8F8F8' : mainColor,
+  topTabBarTextColor: (platform === 'ios') ? '#6b6b6b' : '#fff',
   topTabBarActiveTextColor: (platform === 'ios') ? '#007aff' : '#fff',
   topTabActiveBgColor: (platform === 'ios') ? '#cde1f9' : undefined,
   topTabBarBorderColor: (platform === 'ios') ? '#a7a6ab' : '#fff',
@@ -159,7 +160,7 @@ export default {
 
     // Header
   toolbarBtnColor: (platform === 'ios') ? '#007aff' : '#fff',
-  toolbarDefaultBg: (platform === 'ios') ? '#F8F8F8' : '#e67e22',
+  toolbarDefaultBg: (platform === 'ios') ? '#F8F8F8' : mainColor,
   toolbarHeight: (platform === 'ios') ? 64 : 56,
   toolbarIconSize: (platform === 'ios') ? 20 : 22,
   toolbarSearchIconSize: (platform === 'ios') ? 20 : 23,
@@ -253,7 +254,7 @@ export default {
 
 
     // Tabs
-  tabBgColor: '#F8F8F8',
+  tabBgColor: mainColor,
   tabFontSize: 15,
   tabTextColor: '#222222',
 

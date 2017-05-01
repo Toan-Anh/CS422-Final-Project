@@ -4,7 +4,6 @@ import {
     StyleSheet,
     Text,
     View,
-    ActivityIndicator,
     Modal
 } from 'react-native';
 
@@ -13,6 +12,7 @@ import { Actions } from 'react-native-router-flux';
 
 import * as firebase from 'firebase';
 import variables from '../../../native-base-theme/variables/platform';
+import CustomizedActivityIndicator from '../../modules/CustomizedActivityIndicator';
 
 class LogInScreen extends Component {
     constructor(props) {
@@ -34,7 +34,7 @@ class LogInScreen extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
             }}>
-                <ActivityIndicator size="large" />
+                <CustomizedActivityIndicator />
             </View>) : (
                 <View>
                     <List>
@@ -58,7 +58,7 @@ class LogInScreen extends Component {
                             </InputGroup>
                         </ListItem>
                     </List>
-                    <Button block style={{backgroundColor: variables.toolbarDefaultBg}} onPress={this._logIn}>
+                    <Button block style={{ backgroundColor: variables.toolbarDefaultBg }} onPress={this._logIn}>
                         <Text style={{ color: 'white' }}> Log in </Text>
                     </Button>
                 </View>

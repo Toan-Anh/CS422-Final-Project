@@ -3,12 +3,12 @@ import {
     AppRegistry,
     StyleSheet,
     Text,
-    View,
-    ActivityIndicator
+    View
 } from 'react-native';
 
 import { Container, Content, Form, Item, Input, Header, Title, ListItem, List, InputGroup, Icon, Button, Body } from 'native-base';
 import Grid from 'react-native-grid-component';
+import CustomizedActivityIndicator from './CustomizedActivityIndicator';
 
 export default class FancyTable extends Component {
     constructor(props) {
@@ -38,7 +38,7 @@ export default class FancyTable extends Component {
         if (this.state.isLoading) {
             return (
                 <View>
-                    <ActivityIndicator size="large" />
+                    <CustomizedActivityIndicator/>
                 </View>
             );
         }
