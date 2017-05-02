@@ -8,9 +8,11 @@
   },
   "dependencies": {
     "firebase": "^3.8.0",
+    "moment": "^2.18.1",
     "native-base": "^2.1.2",
     "react": "16.0.0-alpha.6",
     "react-native": "0.43.3",
+    "react-native-gifted-listview": "0.0.15",
     "react-native-grid-component": "^1.0.6",
     "react-native-router-flux": "3.38.0"
   },

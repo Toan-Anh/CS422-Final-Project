@@ -9,7 +9,7 @@ import {
 import * as firebase from 'firebase';
 import { Container, Content, Tab, Tabs, Header, Body, Title, StyleProvider, getTheme } from 'native-base';
 import { Actions } from 'react-native-router-flux';
-import ListDish from './MainScreenFragments/ListDish';
+import ListOrder from './MainScreenFragments/ListOrder';
 import variables from '../../native-base-theme/variables/platform';
 
 class MainScreen extends Component {
@@ -42,7 +42,7 @@ class MainScreen extends Component {
                     </Header>
                     <Tabs>
                         <Tab heading="List Order">
-                            <ListDish />
+                            <ListOrder />
                         </Tab>
                         <Tab heading="Notification">
                             <View />
