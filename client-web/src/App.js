@@ -53,7 +53,7 @@ class App extends Component {
 		this.tabs = [
 			{ title: 'Report', path: '/report' },
 			{ title: 'Dish Management', path: '/dish_management' },
-			{ title: 'Recipe Management', path: '/recipe_management' },
+			// { title: 'Recipe Management', path: '/recipe_management' },
 			{ title: 'Ingredient Management', path: '/ingredient_management' },
 		];
 
@@ -179,7 +179,7 @@ class App extends Component {
 						{/* Routes here */}
 						<Route path='/report' component={ReportPage} />
 						<Route path='/dish_management' component={DishManagementPage} />
-						<Route exact path='/recipe_management' component={RecipeManagementPage} />
+						{/*<Route exact path='/recipe_management' component={RecipeManagementPage} />*/}
 						<Route path='/recipe_management/:recipe_name' component={RecipeDetailPage} />
 						<Route path='/ingredient_management' component={IngredientManagementPage} />
 
