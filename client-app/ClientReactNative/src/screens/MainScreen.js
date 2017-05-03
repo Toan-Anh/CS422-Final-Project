@@ -13,16 +13,18 @@ import { Actions } from 'react-native-router-flux';
 import ListOrder from './MainScreenFragments/ListOrder';
 import variables from '../../native-base-theme/variables/platform';
 import ModalDropdown from 'react-native-modal-dropdown';
+import CustomizedActivityIndicator from '../modules/CustomizedActivityIndicator';
 
 class MainScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentUser: null
+            currentUser: null,
+            isLoading: false,
         }
         this._onSelectModalDropdown = this._onSelectModalDropdown.bind(this);
         this._renderModalMenuRow = this._renderModalMenuRow.bind(this);
-        this._signOut =this._signOut.bind(this);
+        this._signOut = this._signOut.bind(this);
     }
 
     componentWillMount() {
@@ -31,12 +33,36 @@ class MainScreen extends Component {
                 this.setState({ currentUser: user });
 
             } else {
-                Actions.pop();
+                Actions.login();
             }
         });
     }
 
     render() {
+        var content = this.state.isLoading
+            ? (
+
+                <Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}>
+                    <View style={{
+                        flex: 1,
+                        alignSelf: 'stretch',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <CustomizedActivityIndicator />
+                    </View>
+                </Content>
+            )
+            : (
+                <Tabs>
+                    <Tab heading="List Order">
+                        <ListOrder />
+                    </Tab>
+                    <Tab heading="Notification">
+                        <View />
+                    </Tab>
+                </Tabs>
+            )
         return (
             <StyleProvider style={getTheme(variables)}>
                 <Container>
@@ -45,27 +71,20 @@ class MainScreen extends Component {
                             <Title>Main Menu</Title>
                         </Body>
                         <Right>
-                            <ModalDropdown 
+                            <ModalDropdown
                                 options={['Sign Out']}
                                 ref={el => this.menu_dropdown = el}
                                 onSelect={this._onSelectModalDropdown}
                                 dropdownStyle={styles.dropdownContainer}
                                 renderRow={this._renderModalMenuRow}
                             >
-                                <Button transparent onPress={()=> {this.menu_dropdown.show()}}>
-                                    <Icon name={'md-menu'} />
+                                <Button transparent onPress={() => { this.menu_dropdown.show() }}>
+                                    <Icon name={'more'} fontSize={20}/>
                                 </Button>
                             </ModalDropdown>
                         </Right>
                     </Header>
-                    <Tabs>
-                        <Tab heading="List Order">
-                            <ListOrder />
-                        </Tab>
-                        <Tab heading="Notification">
-                            <View />
-                        </Tab>
-                    </Tabs>
+                    {content}
                 </Container>
             </StyleProvider>
         );
@@ -77,9 +96,16 @@ class MainScreen extends Component {
     }
 
     _signOut() {
-		firebase.auth().signOut();
-        Actions.pop();
-	}
+        this.setState({
+            isLoading: true
+        })
+        firebase.auth().signOut().then(function () {
+            Actions.login();
+        }, function (error) {
+            console.error('Sign Out Error', error);
+        });
+
+    }
 
     _renderModalMenuRow(rowData, rowId) {
         return (

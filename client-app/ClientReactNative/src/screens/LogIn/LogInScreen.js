@@ -26,6 +26,14 @@ class LogInScreen extends Component {
         this._logIn = this._logIn.bind(this);
     }
 
+    componentWillMount() {
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                Actions.mainscreen();
+            }
+        })
+    }
+
     render() {
         var content = this.state.loading ?
             (<View style={{
