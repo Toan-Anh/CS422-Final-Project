@@ -14,6 +14,7 @@ import {
 
 import LogInScreen from './src/screens/LogIn/LogInScreen';
 import MainScreen from './src/screens/MainScreen';
+import OrderDetail from './src/screens/OrderDetail';
 import { Scene, Router } from 'react-native-router-flux';
 
 import * as firebase from 'firebase';
@@ -35,6 +36,7 @@ export default class ClientReactNative extends Component {
         <Scene key="root" hideNavBar>
           <Scene key="login" component={LogInScreen} />
           <Scene key="mainscreen" component={MainScreen} />
+          <Scene key="orderdetail" component={OrderDetail} />
         </Scene>
       </Router>)
   }

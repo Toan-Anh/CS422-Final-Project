@@ -7,7 +7,7 @@ import {
     Modal
 } from 'react-native';
 
-import { Container, Content, Form, Item, Input, Header, Title, ListItem, List, InputGroup, Icon, Button, Body, StyleProvider, getTheme } from 'native-base';
+import { Container, Content, Form, Item, Input, Header, Title, ListItem, List, InputGroup, Icon, Button, Body, StyleProvider, getTheme, Left } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 
 import * as firebase from 'firebase';

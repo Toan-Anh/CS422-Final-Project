@@ -10,6 +10,7 @@ import { Fab, Button, Icon, } from 'native-base';
 import CreateOrderFAB from '../../modules/CreateOrderFAB';
 import GiftedListView from 'react-native-gifted-listview';
 import moment from 'moment';
+import {Actions} from 'react-native-router-flux';
 require('moment/locale/vi');
 
 
@@ -62,7 +63,7 @@ class ListOrder extends Component {
             icon = 'md-done-all';
         }
         return (
-            <TouchableNativeFeedback>
+            <TouchableNativeFeedback onPress={()=>{Actions.orderdetail()}}>
                 <View style={styles.rowItemContainer}>
                     <View style={styles.leftRowItemContainer}>
                         <Text style={styles.tableText}>

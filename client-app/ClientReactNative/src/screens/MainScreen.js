@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 
 import * as firebase from 'firebase';
-import { Container, Content, Tab, Tabs, Header, Body, Title, StyleProvider, getTheme } from 'native-base';
+import { Container, Content, Tab, Tabs, Header, Body, Title, StyleProvider, getTheme, Right, Button, Icon } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 import ListOrder from './MainScreenFragments/ListOrder';
 import variables from '../../native-base-theme/variables/platform';
@@ -39,6 +39,11 @@ class MainScreen extends Component {
                         <Body>
                             <Title>Main Menu</Title>
                         </Body>
+                        <Right>
+                            <Button transparent>
+                                <Icon name={'md-menu'}/>
+                            </Button>
+                        </Right>
                     </Header>
                     <Tabs>
                         <Tab heading="List Order">
