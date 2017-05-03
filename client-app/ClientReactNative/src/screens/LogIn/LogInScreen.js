@@ -80,9 +80,11 @@ class LogInScreen extends Component {
     }
 
     _logIn() {
+        var that = this;
         this.setState({ loading: true });
         firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
             .then((a) => {
+                that.setState({ loading: false });
                 Actions.mainscreen();
             })
             .catch((error) => {
