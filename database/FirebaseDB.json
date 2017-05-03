@@ -20,6 +20,12 @@
             "price": 30000,
             "image": "url",
             "available": true
+        },
+        "bun bo": {
+            "name": "bun bo",
+            "price": 25000,
+            "image": "url",
+            "available": true
         }
     },
 
@@ -62,15 +68,24 @@
         "Ban 1": {
             "0": {
                 "dishes": {
-                    "pho tai": "5"
+                    "pho tai": {
+                        "quantity": "5",
+                        "price": 30000
+                    }
                 },
                 "state": "done",
                 "orderedTime": null
             },
             "1": {
                 "dishes": {
-                    "pho tai": "4",
-                    "bun bo": "1"
+                    "pho tai": {
+                        "quantity": "4",
+                        "price": 30000
+                    },
+                    "bun bo": {
+                        "quantity": "1",
+                        "price": 25000
+                    }
                 },
                 "state": "done",
                 "orderedTime": null
