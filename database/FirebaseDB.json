@@ -53,26 +53,29 @@
     },
 
     "tables": {
-        "ban 1": true,
-        "ban 2": true,
-        "ban 3": true
+        "Ban 1": true,
+        "Ban 2": true,
+        "Ban 3": true
     },
 
     "orders": {
-        "ban 1": {
+        "Ban 1": {
             "0": {
                 "dishes": {
                     "pho tai": "5"
                 },
-                "state": "done"
+                "state": "done",
+                "orderedTime": null
             },
             "1": {
                 "dishes": {
                     "pho tai": "4",
                     "bun bo": "1"
                 },
-                "state": "done"
+                "state": "done",
+                "orderedTime": null
             }
+            "count": 2
         }
     },
 
