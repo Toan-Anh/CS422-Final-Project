@@ -19,7 +19,8 @@ class ListOrder extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: []
+            data: [],
+            isLoading: true,
         }
         moment.locale('vi');
         this._onFetch = this._onFetch.bind(this);
@@ -33,7 +34,8 @@ class ListOrder extends Component {
         ordersRef.on('value', function (snapshot) {
             var processedData = that._preprocessListOrders(snapshot.val());
             that.setState({
-                data: processedData
+                data: processedData,
+                isLoading: false
             });
         });
     }
@@ -59,17 +61,9 @@ class ListOrder extends Component {
 
     _onFetch(page = 1, callback, options) {
         var rows = JSON.parse(JSON.stringify(this.state.data));
-        if (page === 3) {
-            callback(rows, {
-                allLoaded: true, // the end of the list is reached
-            });
-        } else {
-            callback(rows);
-        }
-    }
-
-    _onPress(rowData) {
-        console.log(rowData + ' pressed');
+        callback(rows, {
+            allLoaded: true, // the end of the list is reached
+        });
     }
 
     _renderRowView(rowData) {
@@ -81,7 +75,7 @@ class ListOrder extends Component {
             icon = 'md-done-all';
         }
         return (
-            <TouchableNativeFeedback onPress={() => { Actions.orderdetail() }}>
+            <TouchableNativeFeedback onPress={() => { Actions.orderdetail({ table: rowData.table }) }}>
                 <View style={styles.rowItemContainer}>
                     <View style={styles.leftRowItemContainer}>
                         <Text style={styles.tableText}>
@@ -127,8 +121,18 @@ class ListOrder extends Component {
     }
 
     render() {
+        var activityIndicator = this.state.isLoading
+            ?
+            (
+                <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center'}}>
+                    <CustomizedActivityIndicator/>
+                </View>
+            )
+                :
+                (<View/>);
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }}>
+                {activityIndicator}
                 <GiftedListView
                     ref={'giftedListView'}
                     rowView={this._renderRowView}
