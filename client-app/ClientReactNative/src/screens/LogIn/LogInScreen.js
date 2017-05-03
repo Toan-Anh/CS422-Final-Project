@@ -4,13 +4,15 @@ import {
     StyleSheet,
     Text,
     View,
-    ActivityIndicator
+    Modal
 } from 'react-native';
 
-import { Container, Content, Form, Item, Input, Header, Title, ListItem, List, InputGroup, Icon, Button, Body } from 'native-base';
+import { Container, Content, Form, Item, Input, Header, Title, ListItem, List, InputGroup, Icon, Button, Body, StyleProvider, getTheme, Left } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 
 import * as firebase from 'firebase';
+import variables from '../../../native-base-theme/variables/platform';
+import CustomizedActivityIndicator from '../../modules/CustomizedActivityIndicator';
 
 class LogInScreen extends Component {
     constructor(props) {
@@ -32,13 +34,13 @@ class LogInScreen extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
             }}>
-                <ActivityIndicator size="large" />
+                <CustomizedActivityIndicator />
             </View>) : (
                 <View>
                     <List>
                         <ListItem>
                             <InputGroup>
-                                <Icon name="ios-person" style={{ color: '#2874F0' }} />
+                                <Icon name="md-person" style={{ color: variables.toolbarDefaultBg }} />
                                 <Input
                                     onChangeText={(text) => this.setState({ email: text })}
                                     value={this.state.email}
@@ -47,7 +49,7 @@ class LogInScreen extends Component {
                         </ListItem>
                         <ListItem>
                             <InputGroup>
-                                <Icon name="ios-unlock" style={{ color: '#2874F0' }} />
+                                <Icon name="md-unlock" style={{ color: variables.toolbarDefaultBg }} />
                                 <Input
                                     onChangeText={(text) => this.setState({ password: text })}
                                     value={this.state.password}
@@ -56,29 +58,33 @@ class LogInScreen extends Component {
                             </InputGroup>
                         </ListItem>
                     </List>
-                    <Button block primary onPress={this._logIn}>
+                    <Button block style={{ backgroundColor: variables.toolbarDefaultBg }} onPress={this._logIn}>
                         <Text style={{ color: 'white' }}> Log in </Text>
                     </Button>
                 </View>
             );
         return (
-            <Container>
-                <Header>
-                    <Body>
-                        <Title>Login</Title>
-                    </Body>
-                </Header>
-                <Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}>
-                    {content}
-                </Content>
-            </Container>
+            <StyleProvider style={getTheme(variables)}>
+                <Container>
+                    <Header>
+                        <Body>
+                            <Title>Login</Title>
+                        </Body>
+                    </Header>
+                    <Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}>
+                        {content}
+                    </Content>
+                </Container>
+            </StyleProvider>
         )
     }
 
     _logIn() {
+        var that = this;
         this.setState({ loading: true });
         firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
             .then((a) => {
+                that.setState({ loading: false });
                 Actions.mainscreen();
             })
             .catch((error) => {
@@ -90,7 +96,8 @@ class LogInScreen extends Component {
                     console.log('errorCode', errorCode);
                     console.log('errorMessage', errorMessage);
                     this.setState({ loading: false });
-                    this._alertError(errorMessage);
+                    alert(errorMessage);
+                    //this._alertError(errorMessage);
                 }
             });
     }
