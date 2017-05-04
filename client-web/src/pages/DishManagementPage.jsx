@@ -116,6 +116,8 @@ export default class DishManagementPage extends Component {
 	_updateCell(row, cellName, cellValue) {
 		if (cellName === 'image')
 			firebase.database().ref(`/dishes/${row.name}/image`).set(cellValue);
+		else if (cellName === 'price')
+			firebase.database().ref(`/dishes/${row.name}/price`).set(parseInt(cellValue, 10));
 	}
 
 	_renderAvailableCell(cell, row) {
@@ -133,7 +135,7 @@ export default class DishManagementPage extends Component {
 	_renderExternalLinkCell(cell, row) {
 		return (
 			<i className="fa fa-external-link clickable"
-				onClick={(e) => { e.stopPropagation(); this.props.history.push(`/recipe_management/${cell}`) }}
+				onClick={(e) => { e.stopPropagation(); this.props.history.push(`/recipes/${cell}`) }}
 			/>
 		);
 	}
@@ -231,7 +233,7 @@ export default class DishManagementPage extends Component {
 						dataSort
 						dataFormat={this._renderImageCell}
 						customEditor={{ getElement: this._getImageEditor, customEditorParameters: { ingredientAmounts: this.state.ingredientAmounts } }}>
-						Price
+						Illustration
 					</TableHeaderColumn>
 
 					<TableHeaderColumn isKey

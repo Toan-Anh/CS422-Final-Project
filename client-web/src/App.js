@@ -15,9 +15,10 @@ import Sidebar from 'react-sidebar';
 import {
 	ReportPage,
 	DishManagementPage,
-	RecipeManagementPage,
+	// RecipeManagementPage,
 	IngredientManagementPage,
 	RecipeDetailPage,
+	OrderPage,
 } from './pages';
 
 import './stylesheets/App.css';
@@ -51,10 +52,11 @@ class App extends Component {
 		}
 
 		this.tabs = [
-			{ title: 'Report', path: '/report' },
-			{ title: 'Dish Management', path: '/dish_management' },
+			{ title: 'Report', path: '/report', component: ReportPage, level: 0 },
+			{ title: 'Orders', path: '/orders', component: OrderPage, level: 1 },
+			{ title: 'Dish Management', path: '/dish_management', component: DishManagementPage, level: 2 },
 			// { title: 'Recipe Management', path: '/recipe_management' },
-			{ title: 'Ingredient Management', path: '/ingredient_management' },
+			{ title: 'Ingredient Management', path: '/ingredient_management', component: IngredientManagementPage, level: 2 },
 		];
 
 		this.mql = window.matchMedia(`(min-width: 1520px)`);
@@ -87,8 +89,18 @@ class App extends Component {
 				// // ...
 				this.setState({ currentUser: user });
 
-				if (this.props.location.pathname === '/')
-					this._changeTab(0);
+				/////
+				let user_level = 0;
+				/////
+
+				if (this.props.location.pathname === '/') {
+					for (let i = 0; i < this.tabs.length; ++i) {
+						if (user_level <= this.tabs[i].level) {
+							this._changeTab(i);
+							break;
+						}
+					}
+				}
 				else {
 					this.tabs.forEach((tab, index) => {
 						if (this.props.location.pathname === tab.path)
@@ -149,7 +161,7 @@ class App extends Component {
 	_renderSideBarContent() {
 		return (
 			<div className="sidebar-container">
-				<img id='sidebar-logo' alt='logo' src={require('./res/logo.svg')}/>
+				<img id='sidebar-logo' alt='logo' src={require('./res/logo.svg')} />
 				{this.tabs.map((item, index) => {
 					return (
 						<div key={item.path}
@@ -177,11 +189,18 @@ class App extends Component {
 					<div className="container">
 
 						{/* Routes here */}
-						<Route path='/report' component={ReportPage} />
+						{/*<Route path='/report' component={ReportPage} level={this.tabs}/>
+						<Route path='/orders' component={IngredientManagementPage} />
 						<Route path='/dish_management' component={DishManagementPage} />
-						{/*<Route exact path='/recipe_management' component={RecipeManagementPage} />*/}
-						<Route path='/recipe_management/:recipe_name' component={RecipeDetailPage} />
-						<Route path='/ingredient_management' component={IngredientManagementPage} />
+						<Route path='/recipes/:recipe_name' component={RecipeDetailPage} />
+						<Route path='/ingredient_management' component={IngredientManagementPage} />*/}
+						{this.tabs.map(item => {
+							return (
+								<Route key={item.path} path={item.path} render={(props) =>
+									<item.component level={item.level} user={this.state.currentUser} {...props} />} />
+							);
+						})}
+						<Route path='/recipes/:recipe_name' component={RecipeDetailPage} level={2} />
 
 					</div>
 
