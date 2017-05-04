@@ -59,14 +59,14 @@ export default class OrderDetail extends Component {
         var result = [];
         var tempDict = {};
         for (let i = 0; i < dishes.length; i++) {
-            for (x in dishes[i]['dishes']) {
-                if (x in tempDict) {
-                    tempDict[x]['quantity'] = tempDict[x]['quantity'] + dishes[i]['dishes'][x]['quantity'];
+            for (let j = 0; j < dishes[i]['dishes'].length; j++) {
+                if (dishes[i]['dishes'][j].name in tempDict) {
+                    tempDict[dishes[i]['dishes'][j].name]['quantity'] = tempDict[dishes[i]['dishes'][j].name]['quantity'] + dishes[i]['dishes'][j]['quantity'];
                 }
                 else {
-                    tempDict[x] = {}
-                    tempDict[x]['quantity'] =  dishes[i]['dishes'][x]['quantity'];
-                    tempDict[x]['price'] = dishes[i]['dishes'][x]['price'];
+                    tempDict[dishes[i]['dishes'][j].name] = {}
+                    tempDict[dishes[i]['dishes'][j].name]['quantity'] =  dishes[i]['dishes'][j]['quantity'];
+                    tempDict[dishes[i]['dishes'][j].name]['price'] = dishes[i]['dishes'][j]['price'];
                 }
             }
         }
