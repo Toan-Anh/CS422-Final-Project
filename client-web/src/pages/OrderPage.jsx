@@ -7,7 +7,8 @@ import {
 import * as firebase from 'firebase';
 import moment from 'moment';
 import 'moment/locale/vi';
-import '../stylesheets/pages/OrderPage.css'
+import '../stylesheets/pages/OrderPage.css';
+import "../stylesheets/react-bootstrap-table/react-bootstrap-table.css";
 moment.locale('vi');
 
 export default class OrderPage extends Component {
@@ -15,6 +16,7 @@ export default class OrderPage extends Component {
 		super(props);
 		this.state = {
 			orders: [],
+			loading: true,
 		};
 
 		this._onOrderReceived = this._onOrderReceived.bind(this);
@@ -47,7 +49,7 @@ export default class OrderPage extends Component {
 				});
 			});
 		});
-		this.setState({ orders: orders });
+		this.setState({ orders: orders, loading: false });
 	}
 
 	_onOrderReady(e, row) {
@@ -59,7 +61,6 @@ export default class OrderPage extends Component {
 	}
 
 	_renderDishes(cell, row) {
-		console.log(cell);
 		return (
 			<div>
 				<Row className='dish-header-row'>
@@ -88,12 +89,35 @@ export default class OrderPage extends Component {
 		);
 	}
 
+	_renderLoading() {
+		return (
+			<div className='loading-box'>
+				<i className="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+				<p id='loading'>Loading...</p>
+			</div>
+		);
+	}
+
 	_renderTable() {
+		const styles = {
+			headerStyle: {
+				backgroundColor: 'white',
+			},
+
+			tableStyle: {
+				margin: 0,
+			},
+
+			containerStyle: {
+			}
+		};
+
 		return (
 			<div>
 
 				<BootstrapTable ref={(ref) => this.table = ref}
-					data={this.state.orders}>
+					data={this.state.orders}
+					{...styles}>
 
 					<TableHeaderColumn isKey
 						dataField="index"
@@ -148,7 +172,7 @@ export default class OrderPage extends Component {
 			<div className='form-container'>
 
 				<h1 id='title'>Orders</h1>
-				{this._renderTable()}
+				{this.state.loading ? this._renderLoading() : this._renderTable()}
 
 			</div>
 		);
