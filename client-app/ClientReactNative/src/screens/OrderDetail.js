@@ -10,34 +10,75 @@ import { Actions } from 'react-native-router-flux';
 import variables from '../../native-base-theme/variables/platform';
 import Dash from 'react-native-dash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import * as firebase from 'firebase';
+import CustomizedActivityIndicator from '../modules/CustomizedActivityIndicator';
 
 export default class OrderDetail extends Component {
     constructor(props) {
         super(props);
         this.state = {
             data: [
-                {
-                    dish: 'Dish 1',
-                    quantity: 1,
-                    price: 35000
-                },
-                {
-                    dish: 'Dish 2',
-                    quantity: 2,
-                    price: 40000
-                },
-                {
-                    dish: 'Dish 3',
-                    quantity: 4,
-                    price: 30000
-                }
-            ]
+                // {
+                //     dish: 'Dish 1',
+                //     quantity: 1,
+                //     price: 35000
+                // },
+                // {
+                //     dish: 'Dish 2',
+                //     quantity: 2,
+                //     price: 40000
+                // },
+                // {
+                //     dish: 'Dish 3',
+                //     quantity: 4,
+                //     price: 30000
+                // }
+            ],
+            isLoading: false
         }
 
         this._renderHeaderRow = this._renderHeaderRow.bind(this);
         this._renderDishItem = this._renderDishItem.bind(this);
         this._renderTotal = this._renderTotal.bind(this);
         this._calculateTotal = this._calculateTotal.bind(this);
+    }
+
+    componentDidMount() {
+        var that = this;
+        this.setState({isLoading: true});
+        var tableRef = firebase.database().ref('orders/' + this.props.table);
+        tableRef.on('value', function(snapshot) {
+            var processedData = that._preprocessData(snapshot.val());
+            that.setState({
+                data: processedData
+            })
+        });
+    }
+
+    _preprocessData(dishes) {
+        var result = [];
+        var tempDict = {};
+        for (let i = 0; i < dishes.length; i++) {
+            for (x in dishes[i]['dishes']) {
+                if (x in tempDict) {
+                    tempDict[x]['quantity'] = tempDict[x]['quantity'] + dishes[i]['dishes'][x]['quantity'];
+                }
+                else {
+                    tempDict[x] = {}
+                    tempDict[x]['quantity'] =  dishes[i]['dishes'][x]['quantity'];
+                    tempDict[x]['price'] = dishes[i]['dishes'][x]['price'];
+                }
+            }
+        }
+        for (x in tempDict) {
+            result.push({
+                dish: x,
+                quantity: tempDict[x]['quantity'],
+                price: tempDict[x]['price']
+            });
+        }
+        return result;
+
     }
 
     render() {
@@ -51,7 +92,7 @@ export default class OrderDetail extends Component {
                             </Button>
                         </Left>
                         <Body>
-                            <Title>Order Detail</Title>
+                            <Title>{this.props.table}</Title>
                         </Body>
                         <Right>
                             <Button transparent>
@@ -128,7 +169,7 @@ export default class OrderDetail extends Component {
     _calculateTotal() {
         var total = 0;
         for (let i = 0; i < this.state.data.length; ++i) {
-            total = total + this.state.data[i]['price'];
+            total = total + this.state.data[i]['price']*this.state.data[i]['quantity'];
         }
         return total
     }

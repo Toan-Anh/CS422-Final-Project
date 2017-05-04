@@ -7,67 +7,80 @@ import {
     TouchableNativeFeedback
 } from 'react-native';
 import { Fab, Button, Icon, } from 'native-base';
-import CreateOrderFAB from '../../modules/CreateOrderFAB';
+import CustomizedFAB from '../../modules/CustomizedFAB';
 import GiftedListView from 'react-native-gifted-listview';
 import moment from 'moment';
-import {Actions} from 'react-native-router-flux';
+import { Actions } from 'react-native-router-flux';
 require('moment/locale/vi');
-
+import * as firebase from 'firebase';
+import CustomizedActivityIndicator from '../../modules/CustomizedActivityIndicator';
 
 class ListOrder extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            data: [],
+            isLoading: true,
         }
         moment.locale('vi');
+        this._onFetch = this._onFetch.bind(this);
         this._renderRowView = this._renderRowView.bind(this);
         this._renderPaginationWaitingView = this._renderPaginationWaitingView.bind(this);
+        this._onFabClick = this._onFabClick.bind(this);
+    }
+
+    componentDidMount() {
+        var that = this;
+        var ordersRef = firebase.database().ref('orders');
+        ordersRef.on('value', function (snapshot) {
+            var processedData = that._preprocessListOrders(snapshot.val());
+            that.setState({
+                data: processedData,
+                isLoading: false
+            });
+        });
+    }
+
+    componentDidUpdate() {
+        this.refs.giftedListView._refresh();
+    }
+
+    _preprocessListOrders(myObject) {
+        var result = [];
+        for (x in myObject) {
+            for (let i = 0; i < myObject[x].length; i++) {
+                var item = myObject[x][i];
+                result.push({
+                    table: x,
+                    time: (moment.unix(item.time)).fromNow(),
+                    state: item.state
+                });
+            }
+        }
+        return result;
     }
 
     _onFetch(page = 1, callback, options) {
-        var rows = [
-            {
-                tableNum: 'Table ' + ((page - 1) * 3 + 1),
-                time: moment().fromNow(),
-                status: 'preparing'
-            },
-            {
-                tableNum: 'Table ' + ((page - 1) * 3 + 2),
-                time: moment().fromNow(),
-                status: 'ready'
-            },
-            {
-                tableNum: 'Table ' + ((page - 1) * 3 + 3),
-                time: moment().fromNow(),
-                status: 'served'
-            }];
-        if (page === 3) {
-            callback(rows, {
-                allLoaded: true, // the end of the list is reached
-            });
-        } else {
-            callback(rows);
-        }
-    }
-
-    _onPress(rowData) {
-        console.log(rowData + ' pressed');
+        var rows = this.state.data;
+        callback(rows, {
+            allLoaded: true, // the end of the list is reached
+        });
     }
 
     _renderRowView(rowData) {
         var icon = 'md-checkmark-circle-outline';
-        if (rowData.status === 'ready') {
+        if (rowData.state === 'ready') {
             icon = 'md-checkmark-circle';
         }
-        else if (rowData.status === 'served') {
+        else if (rowData.state === 'served') {
             icon = 'md-done-all';
         }
         return (
-            <TouchableNativeFeedback onPress={()=>{Actions.orderdetail()}}>
+            <TouchableNativeFeedback onPress={() => { Actions.orderdetail({ table: rowData.table }) }}>
                 <View style={styles.rowItemContainer}>
                     <View style={styles.leftRowItemContainer}>
                         <Text style={styles.tableText}>
-                            {rowData.tableNum}
+                            {rowData.table}
                         </Text>
                         <Text style={styles.orderTimeText}>
                             {rowData.time}
@@ -95,10 +108,34 @@ class ListOrder extends Component {
         );
     }
 
+    _renderEmptyView(refreshCallback) {
+        return (
+            <View style={{
+                flex: 1,
+                alignSelf: 'stretch',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}>
+                <CustomizedActivityIndicator />
+            </View>
+        )
+    }
+
     render() {
+        var activityIndicator = this.state.isLoading
+            ?
+            (
+                <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center'}}>
+                    <CustomizedActivityIndicator/>
+                </View>
+            )
+                :
+                (<View/>);
         return (
             <View style={{ flex: 1, alignSelf: 'stretch' }}>
+                {activityIndicator}
                 <GiftedListView
+                    ref={'giftedListView'}
                     rowView={this._renderRowView}
                     onFetch={this._onFetch}
                     firstLoader={true} // display a loader for the first fetching
@@ -110,14 +147,19 @@ class ListOrder extends Component {
                             backgroundColor: '#eee',
                         },
                     }}
+                    emptyView={this._renderEmptyView}
                     paginationWaitingView={this._renderPaginationWaitingView}
                     refreshableTintColor="blue"
+                    contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}
                 />
-                <CreateOrderFAB />
+                <CustomizedFAB onFabClick={this._onFabClick}/>
             </View>
         )
     }
 
+    _onFabClick() {
+        Actions.createorder();
+    }
 
 }
 
