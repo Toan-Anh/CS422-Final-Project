@@ -15,6 +15,7 @@ import {
 import LogInScreen from './src/screens/LogIn/LogInScreen';
 import MainScreen from './src/screens/MainScreen';
 import OrderDetail from './src/screens/OrderDetail';
+import CreateOrder from './src/screens/CreateOrder';
 import { Scene, Router, ActionConst } from 'react-native-router-flux';
 
 import * as firebase from 'firebase';
@@ -37,6 +38,7 @@ export default class ClientReactNative extends Component {
           <Scene key="login" component={LogInScreen} type={ActionConst.REPLACE}/>
           <Scene key="mainscreen" component={MainScreen} type={ActionConst.REPLACE}/>
           <Scene key="orderdetail" component={OrderDetail} />
+          <Scene key="createorder" component={CreateOrder} />
         </Scene>
       </Router>)
   }

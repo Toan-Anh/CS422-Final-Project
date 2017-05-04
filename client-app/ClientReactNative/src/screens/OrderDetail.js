@@ -48,8 +48,6 @@ export default class OrderDetail extends Component {
         this.setState({isLoading: true});
         var tableRef = firebase.database().ref('orders/' + this.props.table);
         tableRef.on('value', function(snapshot) {
-            console.log('\n\n\n\n\n\n');
-            console.log(snapshot.val());
             var processedData = that._preprocessData(snapshot.val());
             that.setState({
                 data: processedData

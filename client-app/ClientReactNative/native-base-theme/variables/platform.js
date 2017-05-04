@@ -9,6 +9,7 @@ const platformStyle = 'material';
 const mainColor = '#e67e22';
 
 export default {
+  mainColor,
   platformStyle,
   platform,
     // AndroidRipple

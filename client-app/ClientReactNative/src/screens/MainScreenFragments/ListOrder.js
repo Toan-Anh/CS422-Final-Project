@@ -7,7 +7,7 @@ import {
     TouchableNativeFeedback
 } from 'react-native';
 import { Fab, Button, Icon, } from 'native-base';
-import CreateOrderFAB from '../../modules/CreateOrderFAB';
+import CustomizedFAB from '../../modules/CustomizedFAB';
 import GiftedListView from 'react-native-gifted-listview';
 import moment from 'moment';
 import { Actions } from 'react-native-router-flux';
@@ -26,6 +26,7 @@ class ListOrder extends Component {
         this._onFetch = this._onFetch.bind(this);
         this._renderRowView = this._renderRowView.bind(this);
         this._renderPaginationWaitingView = this._renderPaginationWaitingView.bind(this);
+        this._onFabClick = this._onFabClick.bind(this);
     }
 
     componentDidMount() {
@@ -60,7 +61,7 @@ class ListOrder extends Component {
     }
 
     _onFetch(page = 1, callback, options) {
-        var rows = JSON.parse(JSON.stringify(this.state.data));
+        var rows = this.state.data;
         callback(rows, {
             allLoaded: true, // the end of the list is reached
         });
@@ -151,11 +152,14 @@ class ListOrder extends Component {
                     refreshableTintColor="blue"
                     contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}
                 />
-                <CreateOrderFAB />
+                <CustomizedFAB onFabClick={this._onFabClick}/>
             </View>
         )
     }
 
+    _onFabClick() {
+        Actions.createorder();
+    }
 
 }
 
