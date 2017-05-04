@@ -13,6 +13,7 @@ import { Actions } from 'react-native-router-flux';
 import * as firebase from 'firebase';
 import variables from '../../../native-base-theme/variables/platform';
 import CustomizedActivityIndicator from '../../modules/CustomizedActivityIndicator';
+import KeyboardSpacer from 'react-native-keyboard-spacer';
 
 class LogInScreen extends Component {
     constructor(props) {
@@ -44,32 +45,34 @@ class LogInScreen extends Component {
             }}>
                 <CustomizedActivityIndicator />
             </View>) : (
-                <View>
-                    <List>
-                        <ListItem>
-                            <InputGroup>
-                                <Icon name="md-person" style={{ color: variables.toolbarDefaultBg }} />
-                                <Input
-                                    onChangeText={(text) => this.setState({ email: text })}
-                                    value={this.state.email}
-                                    placeholder={"Email Address"} />
-                            </InputGroup>
-                        </ListItem>
-                        <ListItem>
-                            <InputGroup>
-                                <Icon name="md-unlock" style={{ color: variables.toolbarDefaultBg }} />
-                                <Input
-                                    onChangeText={(text) => this.setState({ password: text })}
-                                    value={this.state.password}
-                                    secureTextEntry={true}
-                                    placeholder={"Password"} />
-                            </InputGroup>
-                        </ListItem>
-                    </List>
+                <Form>
+                    <Item>
+                        <InputGroup>
+                            <Icon name="md-person" style={{ color: variables.toolbarDefaultBg }} />
+                            <Input
+                                onChangeText={(text) => this.setState({ email: text })}
+                                value={this.state.email}
+                                placeholder={"Email Address"} />
+                        </InputGroup>
+                    </Item>
+                    <Item>
+                        <InputGroup>
+                            <Icon name="md-unlock" style={{ color: variables.toolbarDefaultBg }} />
+                            <Input
+                                onChangeText={(text) => this.setState({ password: text })}
+                                value={this.state.password}
+                                secureTextEntry={true}
+                                placeholder={"Password"} />
+
+
+                        </InputGroup>
+                    </Item>
                     <Button block style={{ backgroundColor: variables.toolbarDefaultBg }} onPress={this._logIn}>
                         <Text style={{ color: 'white' }}> Log in </Text>
                     </Button>
-                </View>
+
+                    <KeyboardSpacer />
+                </Form>
             );
         return (
             <StyleProvider style={getTheme(variables)}>
