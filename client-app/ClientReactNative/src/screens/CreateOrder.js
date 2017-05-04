@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import {
-	AppRegistry,
-	StyleSheet,
-	Text,
-	View,
-	Picker,
-	TouchableNativeFeedback,
-	ScrollView,
+    AppRegistry,
+    StyleSheet,
+    Text,
+    View,
+    Picker,
+    TouchableNativeFeedback,
+    TextInput
 } from 'react-native';
 import { Container, Content, Tab, Tabs, Header, Body, Title, StyleProvider, getTheme, Left, Button, Icon, Right, Thumbnail, Item, Input } from 'native-base';
 import { Actions } from 'react-native-router-flux';
@@ -16,99 +16,110 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import * as firebase from 'firebase';
 import CustomizedActivityIndicator from '../modules/CustomizedActivityIndicator';
 import default_dish from '../resources/default_dish.jpg';
+import FancyModal from '../modules/FancyModal';
+import AddDishModalContent from '../modules/AddDishModalContent';
 
 export default class CreateOrder extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			selectedTable: 'ban 1',
-			tables: ['ban 1', 'ban 2', 'ban 3'],
-			dishes: [
-				{
-					name: 'Phở tái',
-					quantity: 2,
-					price: 35000
-				},
-				{
-					name: 'Bún bò',
-					quantity: 5,
-					price: 35000
-				}
-			],
-			noteText: ''
-		}
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedTable: 'ban 1',
+            tables: ['ban 1', 'ban 2', 'ban 3'],
+            dishes: [
+                {
+                    name: 'Phở tái',
+                    quantity: 2,
+                    price: 35000
+                },
+                {
+                    name: 'Bún bò',
+                    quantity: 5,
+                    price: 35000
+                }
+            ],
+            noteText: '',
+            showModal: false
+        }
 
-		this._renderTitle = this._renderTitle.bind(this);
-		this._renderTablePicker = this._renderTablePicker.bind(this);
-		this._onTableChange = this._onTableChange.bind(this);
-		this._renderDishItem = this._renderDishItem.bind(this);
-		this._renderNoteTextbox = this._renderNoteTextbox.bind(this);
-	}
+        this._renderTitle = this._renderTitle.bind(this);
+        this._renderTablePicker = this._renderTablePicker.bind(this);
+        this._onTableChange = this._onTableChange.bind(this);
+        this._renderDishItem = this._renderDishItem.bind(this);
+        this._renderNoteTextbox = this._renderNoteTextbox.bind(this);
+        this._handleDishModal = this._handleDishModal.bind(this);
+    }
 
-	render() {
-		return (
-			<StyleProvider style={getTheme(variables)}>
-				<Container>
-					<Header>
-						<Left>
-							<Button transparent onPress={() => Actions.pop()}>
-								<Icon name={'md-close'} />
-							</Button>
-						</Left>
-						<Body>
-							<Title>New Order</Title>
-						</Body>
-						<Right>
-							<Button transparent>
-								<Icon name={'md-checkmark'} />
-							</Button>
-						</Right>
-					</Header>
-					<Content style={{ flex: 1, alignSelf: 'stretch' }} scrollEnabled={true}>
-						<View>
-							<View style={styles.mainHeader}>
-								{this._renderTitle('Table')}
-								{this._renderTablePicker()}
-							</View>
-							<View style={styles.mainHeader}>
-								{this._renderTitle('Dishes')}
-								{this.state.dishes.map(this._renderDishItem)}
-								<Button style={{ backgroundColor: variables.mainColor }}>
-									<Text style={{ color: 'white' }}>
-										Add Dish
+    render() {
+        console.log('\n\n\n\n\n\n\nshowmodal');
+        console.log(this.state.showModal);
+        return (
+            <StyleProvider style={getTheme(variables)}>
+                <Container>
+                    <Header>
+                        <Left>
+                            <Button transparent onPress={() => Actions.pop()}>
+                                <Icon name={'md-close'} />
+                            </Button>
+                        </Left>
+                        <Body>
+                            <Title>New Order</Title>
+                        </Body>
+                        <Right>
+                            <Button transparent>
+                                <Icon name={'md-checkmark'} />
+                            </Button>
+                        </Right>
+                    </Header>
+                    <Content style={{ flex: 1, alignSelf: 'stretch' }}>
+                        <View style={styles.mainHeader}>
+                            {this._renderTitle('Table')}
+                            {this._renderTablePicker()}
+                        </View>
+                        <View style={styles.mainHeader}>
+                            {this._renderTitle('Dishes')}
+                            {this.state.dishes.map(this._renderDishItem)}
+                            <Button style={{ backgroundColor: variables.mainColor }} onPress={() =>this._handleDishModal(true)}>
+                                <Text style={{ color: 'white' }}>
+                                    Add Dish
                                 </Text>
-								</Button>
-							</View>
-						</View>
-						<View style={styles.mainHeader}>
-							{this._renderTitle('Note')}
-							{this._renderNoteTextbox()}
-						</View>
-					</Content>
-				</Container>
-			</StyleProvider>
-		);
-	}
+                            </Button>
+                        </View>
+                        <View style={styles.mainHeader}>
+                            {this._renderTitle('Note')}
+                            {this._renderNoteTextbox()}
+                        </View>
+                        <FancyModal content={AddDishModalContent} onModalClose={this._handleDishModal} visible={this.state.showModal}/>
+                    </Content>
+                </Container>
+            </StyleProvider>
+        );
+    }
 
-	_renderTablePicker() {
-		var _renderedTableItems = this.state.tables.map(function (table, idx) {
-			return <Picker.Item label={table} value={table} key={idx} />
-		});
-		return (
-			<View
-				style={{ borderColor: 'gray', borderWidth: 1, borderRadius: 5 }}
-			>
-				<Picker
-					selectedValue={this.state.selectedTable}
-					mode={'dropdown'}
-					onValueChange={this._onTableChange}>
-					{
-						_renderedTableItems
-					}
-				</Picker>
-			</View>
-		)
-	}
+    _handleDishModal(value) {
+        this.setState({
+            showModal: value
+        });
+    }
+
+    _renderTablePicker() {
+        var _renderedTableItems = this.state.tables.map(function (table, idx) {
+            return <Picker.Item label={table} value={table} key={idx} />
+        });
+        return (
+            <View
+                style={{ borderColor: 'gray', borderWidth: 1, borderRadius: 5 }}
+            >
+                <Picker
+                    selectedValue={this.state.selectedTable}
+                    mode={'dropdown'}
+                    onValueChange={this._onTableChange}>
+                    {
+                        _renderedTableItems
+                    }
+                </Picker>
+            </View>
+        )
+    }
 
 	_onTableChange(value) {
 		this.setState({
@@ -148,17 +159,17 @@ export default class CreateOrder extends Component {
 		);
 	}
 
-	_renderNoteTextbox() {
-		return (
-			<Item regular style={{ borderWidth: 1, borderRadius: 5, borderColor: 'gray' }}>
-				<Input
-					placeholder='Input note here'
-					onChangeText={(text) => { this.setState({ noteText: text }) }}
-					value={this.state.noteText}
-				/>
-			</Item>
-		)
-	}
+    _renderNoteTextbox() {
+        return (
+            <TextInput style={{ borderWidth: 1, borderRadius: 5, borderColor: 'gray' }}
+                placeholder='Input note here'
+                onChangeText={(text) => { this.setState({ noteText: text }) }}
+                value={this.state.noteText}
+                multiline
+                caretHidden
+            />
+        );
+    }
 }
 
 const styles = StyleSheet.create({

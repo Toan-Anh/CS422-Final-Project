@@ -20,6 +20,15 @@ export default class FancyModal extends Component {
     }
 
     componentDidMount() {
+        console.log('\n\n\n\n\n\n\n\n\nvisible');
+        console.log(this.props.visible);
+        this.setState({modalVisible: this.props.visible})
+    }
+
+    componentWillReceiveProps(nextProps) {
+        console.log('\n\n\n\n\n\n\n\n\nvisiblenextprops');
+        console.log(nextProps.visible);
+        this.setState({modalVisible: nextProps.visible});
     }
 
     render() {
@@ -28,13 +37,13 @@ export default class FancyModal extends Component {
                 animationType={'fade'}
                 transparent={true}
                 visible={this.state.modalVisible}
-                onRequestClose={() => {this._setModalVisible(false); this.props.onModalClose(false)}}
+                onRequestClose={() => {this.props.onModalClose(false)}}
             >
                 <View style={[styles.container, styles.modalBackgroundStyle]}>
                     <View style={styles.innerContainer}>
-                        
-                        <Button block style={{ backgroundColor: 'white', borderWidth: 1, borderColor: 'black', borderRadius: 5 }} onPress={()=>{this._setModalVisible(false); this.props.onModalClose(false)}}>
-                            <Text style={{ color: 'black' }}> Close </Text>
+                        {this.props.content ? this.props.content : null}
+                        <Button transparent style={{float: 'right' }} onPress={()=>{this.props.onModalClose(false)}}>
+                            <Text style={{ color: variables.mainColor }}> Close </Text>
                         </Button>
                     </View>
                 </View>
