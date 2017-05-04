@@ -108,7 +108,7 @@ export default class RecipeManagementPage extends Component {
 	_renderExternalLinkCell(cell, row) {
 		return (
 			<i className="fa fa-external-link clickable"
-				onClick={(e) => { e.stopPropagation(); this.props.history.push(`recipe_management/${row.name}`) }}
+				onClick={(e) => { e.stopPropagation(); this.props.history.push(`recips/${row.name}`) }}
 			/>
 		);
 	}
