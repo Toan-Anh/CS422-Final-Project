@@ -16,30 +16,22 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import * as firebase from 'firebase';
 import CustomizedActivityIndicator from '../modules/CustomizedActivityIndicator';
 import default_dish from '../resources/default_dish.jpg';
-import FancyModal from '../modules/FancyModal';
-import AddDishModalContent from '../modules/AddDishModalContent';
+import AddDishModal from '../modules/AddDishModal';
+require('moment/locale/vi');
+import moment from 'moment';
 
 export default class CreateOrder extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            selectedTable: 'ban 1',
-            tables: ['ban 1', 'ban 2', 'ban 3'],
-            dishes: [
-                {
-                    name: 'Phở tái',
-                    quantity: 2,
-                    price: 35000
-                },
-                {
-                    name: 'Bún bò',
-                    quantity: 5,
-                    price: 35000
-                }
-            ],
+            selectedTable: '',
+            tables: [],
+            dishes: [],
             noteText: '',
-            showModal: false
+            showModal: false,
+            isLoading: true
         }
+        moment.locale('vi');
 
         this._renderTitle = this._renderTitle.bind(this);
         this._renderTablePicker = this._renderTablePicker.bind(this);
@@ -47,11 +39,65 @@ export default class CreateOrder extends Component {
         this._renderDishItem = this._renderDishItem.bind(this);
         this._renderNoteTextbox = this._renderNoteTextbox.bind(this);
         this._handleDishModal = this._handleDishModal.bind(this);
+        this._getNewDish = this._getNewDish.bind(this);
+        this._onDeleteDish = this._onDeleteDish.bind(this);
+        this._onSendNewOrder = this._onSendNewOrder.bind(this);
+    }
+
+    componentDidMount() {
+        var that = this;
+        var tablesRef = firebase.database().ref('tables');
+        tablesRef.on('value', function (snapshot) {
+            console.log(snapshot.val());
+            var tables = [];
+            for (let x in snapshot.val()) {
+                tables.push(x);
+            }
+
+            that.setState({
+                tables: tables,
+                isLoading: false,
+                selectedTable: tables[0]
+            });
+        });
     }
 
     render() {
-        console.log('\n\n\n\n\n\n\nshowmodal');
-        console.log(this.state.showModal);
+        var content = this.state.isLoading
+            ? (
+                <Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}>
+                    <View style={{
+                        flex: 1,
+                        alignSelf: 'stretch',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <CustomizedActivityIndicator />
+                    </View>
+                </Content>
+            )
+            : (
+                <Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}>
+                    <View style={styles.mainHeader}>
+                        {this._renderTitle('Table')}
+                        {this._renderTablePicker()}
+                    </View>
+                    <View style={styles.mainHeader}>
+                        {this._renderTitle('Dishes')}
+                        {this.state.dishes.map(this._renderDishItem)}
+                        <Button style={{ backgroundColor: variables.mainColor }} onPress={() => this._handleDishModal(true)}>
+                            <Text style={{ color: 'white' }}>
+                                Add Dish
+                                </Text>
+                        </Button>
+                    </View>
+                    <View style={styles.mainHeader}>
+                        {this._renderTitle('Note')}
+                        {this._renderNoteTextbox()}
+                    </View>
+                    <AddDishModal onModalClose={this._handleDishModal} visible={this.state.showModal} getDish={this._getNewDish} />
+                </Content>
+            )
         return (
             <StyleProvider style={getTheme(variables)}>
                 <Container>
@@ -65,34 +111,30 @@ export default class CreateOrder extends Component {
                             <Title>New Order</Title>
                         </Body>
                         <Right>
-                            <Button transparent>
+                            <Button transparent onPress={this._onSendNewOrder}>
                                 <Icon name={'md-checkmark'} />
                             </Button>
                         </Right>
                     </Header>
-                    <Content style={{ flex: 1, alignSelf: 'stretch' }}>
-                        <View style={styles.mainHeader}>
-                            {this._renderTitle('Table')}
-                            {this._renderTablePicker()}
-                        </View>
-                        <View style={styles.mainHeader}>
-                            {this._renderTitle('Dishes')}
-                            {this.state.dishes.map(this._renderDishItem)}
-                            <Button style={{ backgroundColor: variables.mainColor }} onPress={() =>this._handleDishModal(true)}>
-                                <Text style={{ color: 'white' }}>
-                                    Add Dish
-                                </Text>
-                            </Button>
-                        </View>
-                        <View style={styles.mainHeader}>
-                            {this._renderTitle('Note')}
-                            {this._renderNoteTextbox()}
-                        </View>
-                        <FancyModal content={AddDishModalContent} onModalClose={this._handleDishModal} visible={this.state.showModal}/>
-                    </Content>
+                    {content}
                 </Container>
             </StyleProvider>
         );
+    }
+
+    _onSendNewOrder() {
+        var that = this;
+        var ordersRef = firebase.database().ref('orders/' + this.state.selectedTable);
+        ordersRef.once('value', function (snapshot) {
+            var newOrders = snapshot.val() ? snapshot.val() : [];
+            newOrders.push({
+                dishes: that.state.dishes,
+                state: 'preparing',
+                time: moment().format('X')
+            });
+            ordersRef.set(newOrders);
+            Actions.pop();
+        });
     }
 
     _handleDishModal(value) {
@@ -121,43 +163,51 @@ export default class CreateOrder extends Component {
         )
     }
 
-	_onTableChange(value) {
-		this.setState({
-			selectedTable: value
-		});
-	}
+    _onTableChange(value) {
+        this.setState({
+            selectedTable: value
+        });
+    }
 
-	_renderTitle(title) {
-		return (
-			<Text style={styles.titleText}>
-				{title}
-			</Text>
-		)
-	}
+    _renderTitle(title) {
+        return (
+            <Text style={styles.titleText}>
+                {title}
+            </Text>
+        )
+    }
 
-	_renderDishItem(item) {
-		return (
-			<View style={styles.dishItemContainer}>
-				<View style={styles.dishThumbnailContainer}>
-					<Thumbnail square source={default_dish} />
-				</View>
-				<View style={styles.dishDetailContainer}>
-					<Text style={styles.dishNameText}>
-						{item.name}
-					</Text>
-					<Text style={styles.dishQuantityText}>
-						{item.quantity}
-					</Text>
-				</View>
+    _renderDishItem(item, idx) {
+        return (
+            <View style={styles.dishItemContainer}>
+                <View style={styles.dishThumbnailContainer}>
+                    <Thumbnail square source={{ uri: item.image }} />
+                </View>
+                <View style={styles.dishDetailContainer}>
+                    <Text style={styles.dishNameText}>
+                        {item.name}
+                    </Text>
+                    <Text style={styles.dishQuantityText}>
+                        {'quantity: ' + item.quantity}
+                    </Text>
+                </View>
 
-				<TouchableNativeFeedback>
-					<View style={styles.dishRemovalContainer}>
-						<Icon name={'md-close'} style={{ textAlign: 'center', color: 'gray' }} />
-					</View>
-				</TouchableNativeFeedback>
-			</View>
-		);
-	}
+                <TouchableNativeFeedback onPress={(idx) => this._onDeleteDish(idx)}>
+                    <View style={styles.dishRemovalContainer}>
+                        <Icon name={'md-close'} style={{ textAlign: 'center', color: 'gray' }} />
+                    </View>
+                </TouchableNativeFeedback>
+            </View>
+        );
+    }
+
+    _onDeleteDish(idx) {
+        var newDishes = this.state.dishes;
+        newDishes.splice(idx, 1);
+        this.setState({
+            dishes: newDishes
+        });
+    }
 
     _renderNoteTextbox() {
         return (
@@ -170,39 +220,57 @@ export default class CreateOrder extends Component {
             />
         );
     }
+
+    _getNewDish(newDish) {
+        var dishesClone = this.state.dishes;
+        for (let i = 0; i < dishesClone.length; i++) {
+            if (dishesClone[i].name === newDish.name) {
+                dishesClone[i].quantity = parseInt(dishesClone[i].quantity) + parseInt(newDish.quantity);
+                this.setState({
+                    dishes: dishesClone
+                });
+                return;
+            }
+        }
+
+        dishesClone.push(newDish);
+        this.setState({
+            dishes: dishesClone
+        });
+    }
 }
 
 const styles = StyleSheet.create({
-	titleText: {
-		color: variables.mainColor,
-		fontSize: 20,
-		paddingBottom: 5
-	},
-	mainHeader: {
-		paddingHorizontal: 15,
-		paddingTop: 15
-	},
-	dishItemContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		paddingBottom: 10
-	},
-	dishThumbnailContainer: {
-		flex: 1
-	},
-	dishDetailContainer: {
-		flex: 5,
-		flexDirection: 'column',
-		paddingHorizontal: 15
-	},
-	dishNameText: {
-		color: 'black',
-		fontSize: 18
-	},
-	dishQuantityText: {
-		fontSize: 14
-	},
-	dishRemovalContainer: {
-		flex: 1
-	}
+    titleText: {
+        color: variables.mainColor,
+        fontSize: 20,
+        paddingBottom: 5
+    },
+    mainHeader: {
+        paddingHorizontal: 15,
+        paddingTop: 15
+    },
+    dishItemContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingBottom: 10
+    },
+    dishThumbnailContainer: {
+        flex: 1
+    },
+    dishDetailContainer: {
+        flex: 5,
+        flexDirection: 'column',
+        paddingHorizontal: 15
+    },
+    dishNameText: {
+        color: 'black',
+        fontSize: 18
+    },
+    dishQuantityText: {
+        fontSize: 14
+    },
+    dishRemovalContainer: {
+        flex: 1
+    }
 });
