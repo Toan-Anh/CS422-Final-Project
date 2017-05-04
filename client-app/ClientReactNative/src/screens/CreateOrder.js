@@ -137,6 +137,11 @@ export default class CreateOrder extends Component {
         });
     }
 
+    componentWillUnmount() {
+        var ordersRef = firebase.database().ref('orders/' + this.state.selectedTable);
+        ordersRef.off();
+    }
+
     _handleDishModal(value) {
         this.setState({
             showModal: value

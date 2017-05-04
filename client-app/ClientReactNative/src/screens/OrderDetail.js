@@ -55,6 +55,11 @@ export default class OrderDetail extends Component {
         });
     }
 
+    componentWillUnmount() {
+        var tableRef = firebase.database().ref('orders/' + this.props.table);
+        tableRef.off();
+    }
+
     _preprocessData(dishes) {
         var result = [];
         var tempDict = {};

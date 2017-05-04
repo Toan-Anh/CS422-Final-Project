@@ -41,6 +41,11 @@ class ListOrder extends Component {
         });
     }
 
+    componentWillUnmount() {
+        var ordersRef = firebase.database().ref('orders');
+        ordersRef.off();
+    }
+
     componentDidUpdate() {
         this.refs.giftedListView._refresh();
     }
