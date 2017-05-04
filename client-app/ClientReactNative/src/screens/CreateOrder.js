@@ -5,7 +5,8 @@ import {
     Text,
     View,
     Picker,
-    TouchableNativeFeedback
+    TouchableNativeFeedback,
+    TextInput
 } from 'react-native';
 import { Container, Content, Tab, Tabs, Header, Body, Title, StyleProvider, getTheme, Left, Button, Icon, Right, Thumbnail, Item, Input } from 'native-base';
 import { Actions } from 'react-native-router-flux';
@@ -16,6 +17,8 @@ import * as firebase from 'firebase';
 import CustomizedActivityIndicator from '../modules/CustomizedActivityIndicator';
 import default_dish from '../resources/default_dish.jpg';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
+import FancyModal from '../modules/FancyModal';
+import AddDishModalContent from '../modules/AddDishModalContent';
 
 export default class CreateOrder extends Component {
     constructor(props) {
@@ -35,7 +38,8 @@ export default class CreateOrder extends Component {
                     price: 35000
                 }
             ],
-            noteText: ''
+            noteText: '',
+            showModal: false
         }
 
         this._renderTitle = this._renderTitle.bind(this);
@@ -43,9 +47,12 @@ export default class CreateOrder extends Component {
         this._onTableChange = this._onTableChange.bind(this);
         this._renderDishItem = this._renderDishItem.bind(this);
         this._renderNoteTextbox = this._renderNoteTextbox.bind(this);
+        this._handleDishModal = this._handleDishModal.bind(this);
     }
 
     render() {
+        console.log('\n\n\n\n\n\n\nshowmodal');
+        console.log(this.state.showModal);
         return (
             <StyleProvider style={getTheme(variables)}>
                 <Container>
@@ -72,7 +79,7 @@ export default class CreateOrder extends Component {
                         <View style={styles.mainHeader}>
                             {this._renderTitle('Dishes')}
                             {this.state.dishes.map(this._renderDishItem)}
-                            <Button style={{ backgroundColor: variables.mainColor }}>
+                            <Button style={{ backgroundColor: variables.mainColor }} onPress={() =>this._handleDishModal(true)}>
                                 <Text style={{ color: 'white' }}>
                                     Add Dish
                                 </Text>
@@ -82,11 +89,18 @@ export default class CreateOrder extends Component {
                             {this._renderTitle('Note')}
                             {this._renderNoteTextbox()}
                         </View>
+                        <FancyModal content={AddDishModalContent} onModalClose={this._handleDishModal} visible={this.state.showModal}/>
                         <KeyboardSpacer />
                     </Content>
                 </Container>
             </StyleProvider>
         );
+    }
+
+    _handleDishModal(value) {
+        this.setState({
+            showModal: value
+        });
     }
 
     _renderTablePicker() {
@@ -96,7 +110,7 @@ export default class CreateOrder extends Component {
         return (
             <View
                 style={{ borderColor: 'gray', borderWidth: 1, borderRadius: 5 }}
-                >
+            >
                 <Picker
                     selectedValue={this.state.selectedTable}
                     mode={'dropdown'}
@@ -149,14 +163,14 @@ export default class CreateOrder extends Component {
 
     _renderNoteTextbox() {
         return (
-            <Item regular style={{ borderWidth: 1, borderRadius: 5, borderColor: 'gray' }}>
-                <Input
-                    placeholder='Input note here'
-                    onChangeText={(text) => { this.setState({ noteText: text }) }}
-                    value={this.state.noteText}
-                />
-            </Item>
-        )
+            <TextInput style={{ borderWidth: 1, borderRadius: 5, borderColor: 'gray' }}
+                placeholder='Input note here'
+                onChangeText={(text) => { this.setState({ noteText: text }) }}
+                value={this.state.noteText}
+                multiline
+                caretHidden
+            />
+        );
     }
 }
 
