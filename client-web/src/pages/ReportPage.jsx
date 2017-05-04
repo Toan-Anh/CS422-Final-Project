@@ -5,7 +5,13 @@ export default class ReportPage extends Component {
 		super(props);
 		this.state = {
 
-		}
+		};
+
+		this._onRecordsReceived = this._onRecordsReceived.bind(this);
+	}
+
+	_onRecordsReceived() {
+		
 	}
 
 	componentWillMount() {
