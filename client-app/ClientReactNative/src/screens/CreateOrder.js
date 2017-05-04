@@ -64,14 +64,13 @@ export default class CreateOrder extends Component {
                             </Button>
                         </Right>
                     </Header>
-                    <Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}>
+                    <Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }} scrollEnabled={false}>
                         <View style={styles.mainHeader}>
                             {this._renderTitle('Table')}
                             {this._renderTablePicker()}
                         </View>
                         <View style={styles.mainHeader}>
                             {this._renderTitle('Dishes')}
-                            <View style={{ paddingBottom: 10 }} />
                             {this.state.dishes.map(this._renderDishItem)}
                             <Button style={{ backgroundColor: variables.mainColor }}>
                                 <Text style={{ color: 'white' }}>
@@ -82,9 +81,8 @@ export default class CreateOrder extends Component {
                         <View style={styles.mainHeader}>
                             {this._renderTitle('Note')}
                             {this._renderNoteTextbox()}
-                            <KeyboardSpacer/>
                         </View>
-                        
+                        <KeyboardSpacer />
                     </Content>
                 </Container>
             </StyleProvider>
@@ -96,14 +94,18 @@ export default class CreateOrder extends Component {
             return <Picker.Item label={table} value={table} key={idx} />
         });
         return (
-            <Picker
-                selectedValue={this.state.selectedTable}
-                mode={'dropdown'}
-                onValueChange={this._onTableChange}>
-                {
-                    _renderedTableItems
-                }
-            </Picker>
+            <View
+                style={{ borderColor: 'gray', borderWidth: 1, borderRadius: 5 }}
+                >
+                <Picker
+                    selectedValue={this.state.selectedTable}
+                    mode={'dropdown'}
+                    onValueChange={this._onTableChange}>
+                    {
+                        _renderedTableItems
+                    }
+                </Picker>
+            </View>
         )
     }
 
@@ -138,7 +140,7 @@ export default class CreateOrder extends Component {
 
                 <TouchableNativeFeedback>
                     <View style={styles.dishRemovalContainer}>
-                        <Icon name={'md-close'} color={'gray'} style={{ textAlign: 'center' }} />
+                        <Icon name={'md-close'} style={{ textAlign: 'center', color: 'gray' }} />
                     </View>
                 </TouchableNativeFeedback>
             </View>
@@ -147,10 +149,10 @@ export default class CreateOrder extends Component {
 
     _renderNoteTextbox() {
         return (
-            <Item regular style={{marginTop: 5, borderWidth: 1, borderRadius: 5, borderColor: 'gray'}}>
+            <Item regular style={{ borderWidth: 1, borderRadius: 5, borderColor: 'gray' }}>
                 <Input
                     placeholder='Input note here'
-                    onChangeText={(text) => {this.setState({noteText: text})}}
+                    onChangeText={(text) => { this.setState({ noteText: text }) }}
                     value={this.state.noteText}
                 />
             </Item>
@@ -161,11 +163,12 @@ export default class CreateOrder extends Component {
 const styles = StyleSheet.create({
     titleText: {
         color: variables.mainColor,
-        fontSize: 20
+        fontSize: 20,
+        paddingBottom: 5
     },
     mainHeader: {
         paddingHorizontal: 15,
-        paddingTop: 10
+        paddingTop: 15
     },
     dishItemContainer: {
         flexDirection: 'row',
