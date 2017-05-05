@@ -13,8 +13,7 @@ export default class ReportPage extends Component {
 	}
 
 	_onRecordsReceived(snapshot) {
-		let records = [];
-		this.setState({ records: records, loading: false });
+		this.setState({ records: snapshot.val(), loading: false });
 	}
 
 	componentWillMount() {
@@ -26,16 +25,31 @@ export default class ReportPage extends Component {
 		this.recordRef.off('value', this._onRecordsReceived);
 	}
 
-
-
-	render() {
+	_renderLoading() {
 		return (
-			<div className='form-container'>
-
-				<h1 id='title'>Report</h1>
-				{/*{this.state.loading ? this._renderLoading() : this._renderTable()}*/}
-
+			<div className='loading-box'>
+				<i className="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+				<p id='loading'>Loading...</p>
 			</div>
 		);
+	}
+
+	_renderTable() {
+		console.log(this.state.records);
+		return (null);
+	}
+
+	render() {
+		if (this.props.user.level <= this.prop.level)
+			return (
+				<div className='form-container'>
+
+					<h1 id='title'>Report</h1>
+					{this.state.loading ? this._renderLoading() : this._renderTable()}
+
+				</div>
+			);
+		else
+			return (`You don't have permission to access this page`);
 	}
 }

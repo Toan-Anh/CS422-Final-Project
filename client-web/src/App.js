@@ -58,6 +58,7 @@ class App extends Component {
 			// { title: 'Recipe Management', path: '/recipe_management' },
 			{ title: 'Ingredient Management', path: '/ingredient_management', component: IngredientManagementPage, level: 2 },
 		];
+		this.roles = null;
 
 		this.mql = window.matchMedia(`(min-width: 1520px)`);
 		this._mediaQueryChanged = this._mediaQueryChanged.bind(this);
@@ -89,22 +90,34 @@ class App extends Component {
 		this.mql.removeListener(this.mediaQueryChanged);
 	}
 
-	_navigateByUser(user) {
-		// // User is signed in.
-		// var displayName = user.displayName;
-		// var email = user.email;
-		// var emailVerified = user.emailVerified;
-		// var photoURL = user.photoURL;
-		// var isAnonymous = user.isAnonymous;
-		// var uid = user.uid;
-		// var providerData = user.providerData;
-		// // ...
+	_extractLevel(users, user, callback) {
+		Object.keys(users).some(key => {
+			let data = users[key];
+			if (data.email === user.email) {
+				user.level = this.roles[data.role];
+				return true;
+			}
+			return false;
+		});
+		callback(user.level);
 		this.setState({ currentUser: user });
+	}
 
-		/////
-		let user_level = 0;
-		/////
+	_navigateByUser(user) {
+		this.userRef = firebase.database().ref(`/users/`);
+		this.userRef.once('value', (snapshot) => {
+			if (!this.roles) {
+				firebase.database().ref(`/roles/`).once('value', s => {
+					this.roles = s.val();
+					this._extractLevel(snapshot.val(), user, (user_level) => this._navigate(user_level));
+				});
+			}
+			else
+				this._extractLevel(snapshot);
+		});
+	}
 
+	_navigate(user_level) {
 		if (this.props.location.pathname === '/') {
 			for (let i = 0; i < this.tabs.length; ++i) {
 				if (user_level <= this.tabs[i].level) {
@@ -117,7 +130,7 @@ class App extends Component {
 			this.tabs.forEach((tab, index) => {
 				if (this.props.location.pathname === tab.path)
 					this._changeTab(index);
-			})
+			});
 		}
 	}
 
