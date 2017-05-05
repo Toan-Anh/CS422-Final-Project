@@ -181,7 +181,7 @@ export default class FancyModal extends Component {
                 onChangeText={(quantity) => { this.setState({ quantity: quantity }) }}
                 value={this.state.quantity}
                 multiline
-                caretHidden
+                underlineColorAndroid={'transparent'}
                 keyboardType={'numeric'}
             />
         );

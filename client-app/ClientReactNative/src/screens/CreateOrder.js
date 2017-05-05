@@ -222,7 +222,7 @@ export default class CreateOrder extends Component {
                 onChangeText={(text) => { this.setState({ noteText: text }) }}
                 value={this.state.noteText}
                 multiline
-                caretHidden
+                underlineColorAndroid={'transparent'}
             />
         );
     }

@@ -41,7 +41,7 @@ export default class OrderDetail extends Component {
                 // }
             ],
             isLoading: false,
-            thumbnail: null
+            key: null
         }
         moment.locale('vi');
         this._renderHeaderRow = this._renderHeaderRow.bind(this);
@@ -66,6 +66,20 @@ export default class OrderDetail extends Component {
     componentWillUnmount() {
         // var tableRef = firebase.database().ref('orders/' + this.props.table);
         // tableRef.off();
+    }
+
+    componentDidUpdate() {
+        var that = this;
+        if (this.state.key) {
+            takeSnapshot(this.refs.contentToPrint, { format: 'png', quality: 1.0, path: DownloadDir + `/${this.state.key}.png` }).then(
+                uri => {
+                    console.log("Image saved to", uri);
+                    CameraRoll.saveToCameraRoll(uri);
+                    firebase.database().ref('orders/' + this.props.table).remove().then(()=>{Actions.pop()})
+                },
+                error => console.error("Oops, snapshot failed", error)
+            );
+        }
     }
 
     _preprocessData(dishes) {
@@ -103,17 +117,19 @@ export default class OrderDetail extends Component {
             table: this.props.table,
             dishes: this.state.data
         }).key;
-        takeSnapshot(this.refs.contentToPrint, { format: 'jpg', quality: 0.8, path: DownloadDir + '/foo.jpg' }).then(
-            uri => {
-                console.log("Image saved to", uri), CameraRoll.saveToCameraRoll(uri), that.setState({
-                    thumbnail: uri
-                })
-            },
-            error => console.error("Oops, snapshot failed", error)
-        );
+        this.setState({ key: key });
+
     }
 
     render() {
+        var printKey = this.state.key
+            ? (
+                <Text style={{ fontSize: 20, color: 'black', borderBottomWidth: 1, borderBottomColor: 'black', marginBottom: 30 }}>
+                    Note ID: {this.state.key}
+                </Text>
+            )
+            :
+            <View />
         return (
             <StyleProvider style={getTheme(variables)}>
                 <Container>
@@ -133,13 +149,11 @@ export default class OrderDetail extends Component {
                         </Right>
                     </Header>
                     <Content>
-                        <View style={{ padding: 10 }} ref={'contentToPrint'} collapsable={false}>
+                        <View style={{ padding: 10, backgroundColor: 'white' }} ref={'contentToPrint'} collapsable={false}>
+                            {printKey}
                             {this._renderHeaderRow()}
                             {this.state.data.map(this._renderDishItem)}
                             {this._renderTotal()}
-                            {
-                                this.state.thumbnail ? <Thumbnail square source={{ uri: this.state.thumbnail }} /> : <View />
-                            }
                         </View>
                     </Content>
                 </Container>
