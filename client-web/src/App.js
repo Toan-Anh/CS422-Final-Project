@@ -78,36 +78,7 @@ class App extends Component {
 
 		firebase.auth().onAuthStateChanged((user) => {
 			if (user) {
-				// // User is signed in.
-				// var displayName = user.displayName;
-				// var email = user.email;
-				// var emailVerified = user.emailVerified;
-				// var photoURL = user.photoURL;
-				// var isAnonymous = user.isAnonymous;
-				// var uid = user.uid;
-				// var providerData = user.providerData;
-				// // ...
-				this.setState({ currentUser: user });
-
-				/////
-				let user_level = 0;
-				/////
-
-				if (this.props.location.pathname === '/') {
-					for (let i = 0; i < this.tabs.length; ++i) {
-						if (user_level <= this.tabs[i].level) {
-							this._changeTab(i);
-							break;
-						}
-					}
-				}
-				else {
-					this.tabs.forEach((tab, index) => {
-						if (this.props.location.pathname === tab.path)
-							this._changeTab(index);
-					})
-				}
-
+				this._navigateByUser(user);
 			} else {
 				this.props.history.replace('/login');
 			}
@@ -116,6 +87,38 @@ class App extends Component {
 
 	componentWillUnmount() {
 		this.mql.removeListener(this.mediaQueryChanged);
+	}
+
+	_navigateByUser(user) {
+		// // User is signed in.
+		// var displayName = user.displayName;
+		// var email = user.email;
+		// var emailVerified = user.emailVerified;
+		// var photoURL = user.photoURL;
+		// var isAnonymous = user.isAnonymous;
+		// var uid = user.uid;
+		// var providerData = user.providerData;
+		// // ...
+		this.setState({ currentUser: user });
+
+		/////
+		let user_level = 0;
+		/////
+
+		if (this.props.location.pathname === '/') {
+			for (let i = 0; i < this.tabs.length; ++i) {
+				if (user_level <= this.tabs[i].level) {
+					this._changeTab(i);
+					break;
+				}
+			}
+		}
+		else {
+			this.tabs.forEach((tab, index) => {
+				if (this.props.location.pathname === tab.path)
+					this._changeTab(index);
+			})
+		}
 	}
 
 	_onNavSelect() {
