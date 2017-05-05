@@ -4,7 +4,8 @@ import {
     StyleSheet,
     Text,
     View,
-    TouchableHighlight
+    TouchableHighlight,
+    ScrollView
 } from 'react-native';
 
 import * as firebase from 'firebase';
@@ -14,6 +15,7 @@ import ListOrder from './MainScreenFragments/ListOrder';
 import variables from '../../native-base-theme/variables/platform';
 import ModalDropdown from 'react-native-modal-dropdown';
 import CustomizedActivityIndicator from '../modules/CustomizedActivityIndicator';
+import CustomizedFAB from '../modules/CustomizedFAB';
 
 class MainScreen extends Component {
     constructor(props) {
@@ -25,6 +27,7 @@ class MainScreen extends Component {
         this._onSelectModalDropdown = this._onSelectModalDropdown.bind(this);
         this._renderModalMenuRow = this._renderModalMenuRow.bind(this);
         this._signOut = this._signOut.bind(this);
+        this._onFabClick = this._onFabClick.bind(this);
     }
 
     componentWillMount() {
@@ -36,6 +39,10 @@ class MainScreen extends Component {
                 Actions.login();
             }
         });
+    }
+
+    _onFabClick() {
+        Actions.createorder();
     }
 
     render() {
@@ -56,12 +63,16 @@ class MainScreen extends Component {
             : (
                 <Tabs>
                     <Tab heading="List Order">
-                        <ListOrder />
+                        <ScrollView>
+                            <ListOrder />
+                        </ScrollView>
+                        <CustomizedFAB onFabClick={this._onFabClick} />
                     </Tab>
                     <Tab heading="Notification">
                         <View />
                     </Tab>
                 </Tabs>
+
             )
         return (
             <StyleProvider style={getTheme(variables)}>
@@ -79,7 +90,7 @@ class MainScreen extends Component {
                                 renderRow={this._renderModalMenuRow}
                             >
                                 <Button transparent onPress={() => { this.menu_dropdown.show() }}>
-                                    <Icon name={'more'} fontSize={20}/>
+                                    <Icon name={'more'} fontSize={20} />
                                 </Button>
                             </ModalDropdown>
                         </Right>

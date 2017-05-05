@@ -3,15 +3,21 @@ import {
     AppRegistry,
     StyleSheet,
     Text,
-    View
+    View,
+    CameraRoll
 } from 'react-native';
-import { Container, Content, Tab, Tabs, Header, Body, Title, StyleProvider, getTheme, Left, Button, Icon, Right } from 'native-base';
+import { Container, Content, Tab, Tabs, Header, Body, Title, StyleProvider, getTheme, Left, Button, Icon, Right, Thumbnail } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 import variables from '../../native-base-theme/variables/platform';
 import Dash from 'react-native-dash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import * as firebase from 'firebase';
 import CustomizedActivityIndicator from '../modules/CustomizedActivityIndicator';
+require('moment/locale/vi');
+import moment from 'moment';
+import { takeSnapshot, dirs } from "react-native-view-shot";
+const { DocumentDir, MainBundleDir, MovieDir, MusicDir, PictureDir } = dirs;
+const { DCIMDir, DownloadDir, RingtoneDir, SDCardDir } = dirs;
 
 export default class OrderDetail extends Component {
     constructor(props) {
@@ -34,20 +40,22 @@ export default class OrderDetail extends Component {
                 //     price: 30000
                 // }
             ],
-            isLoading: false
+            isLoading: false,
+            thumbnail: null
         }
-
+        moment.locale('vi');
         this._renderHeaderRow = this._renderHeaderRow.bind(this);
         this._renderDishItem = this._renderDishItem.bind(this);
         this._renderTotal = this._renderTotal.bind(this);
         this._calculateTotal = this._calculateTotal.bind(this);
+        this._onExportOrder = this._onExportOrder.bind(this);
     }
 
     componentDidMount() {
         var that = this;
-        this.setState({isLoading: true});
+        this.setState({ isLoading: true });
         var tableRef = firebase.database().ref('orders/' + this.props.table);
-        tableRef.on('value', function(snapshot) {
+        tableRef.once('value', function (snapshot) {
             var processedData = that._preprocessData(snapshot.val());
             that.setState({
                 data: processedData
@@ -55,18 +63,23 @@ export default class OrderDetail extends Component {
         });
     }
 
+    componentWillUnmount() {
+        // var tableRef = firebase.database().ref('orders/' + this.props.table);
+        // tableRef.off();
+    }
+
     _preprocessData(dishes) {
         var result = [];
         var tempDict = {};
         for (let i = 0; i < dishes.length; i++) {
-            for (x in dishes[i]['dishes']) {
-                if (x in tempDict) {
-                    tempDict[x]['quantity'] = tempDict[x]['quantity'] + dishes[i]['dishes'][x]['quantity'];
+            for (let j = 0; j < dishes[i]['dishes'].length; j++) {
+                if (dishes[i]['dishes'][j].name in tempDict) {
+                    tempDict[dishes[i]['dishes'][j].name]['quantity'] = tempDict[dishes[i]['dishes'][j].name]['quantity'] + dishes[i]['dishes'][j]['quantity'];
                 }
                 else {
-                    tempDict[x] = {}
-                    tempDict[x]['quantity'] =  dishes[i]['dishes'][x]['quantity'];
-                    tempDict[x]['price'] = dishes[i]['dishes'][x]['price'];
+                    tempDict[dishes[i]['dishes'][j].name] = {}
+                    tempDict[dishes[i]['dishes'][j].name]['quantity'] = dishes[i]['dishes'][j]['quantity'];
+                    tempDict[dishes[i]['dishes'][j].name]['price'] = dishes[i]['dishes'][j]['price'];
                 }
             }
         }
@@ -79,6 +92,25 @@ export default class OrderDetail extends Component {
         }
         return result;
 
+    }
+
+    _onExportOrder() {
+        var that = this;
+        var day = moment().date();
+        var month = moment().month();
+        var year = moment().year();
+        let key = firebase.database().ref(`/records/${year}/${month}/${day}/orders`).push({
+            table: this.props.table,
+            dishes: this.state.data
+        }).key;
+        takeSnapshot(this.refs.contentToPrint, { format: 'jpg', quality: 0.8, path: DownloadDir + '/foo.jpg' }).then(
+            uri => {
+                console.log("Image saved to", uri), CameraRoll.saveToCameraRoll(uri), that.setState({
+                    thumbnail: uri
+                })
+            },
+            error => console.error("Oops, snapshot failed", error)
+        );
     }
 
     render() {
@@ -95,15 +127,20 @@ export default class OrderDetail extends Component {
                             <Title>{this.props.table}</Title>
                         </Body>
                         <Right>
-                            <Button transparent>
-                            <MaterialIcons name={'file-upload'} color={'white'} size={25}/>
+                            <Button transparent onPress={this._onExportOrder}>
+                                <MaterialIcons name={'file-upload'} color={'white'} size={25} />
                             </Button>
                         </Right>
                     </Header>
-                    <Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch', margin: 12 }}>
-                        {this._renderHeaderRow()}
-                        {this.state.data.map(this._renderDishItem)}
-                        {this._renderTotal()}
+                    <Content>
+                        <View style={{ padding: 10 }} ref={'contentToPrint'} collapsable={false}>
+                            {this._renderHeaderRow()}
+                            {this.state.data.map(this._renderDishItem)}
+                            {this._renderTotal()}
+                            {
+                                this.state.thumbnail ? <Thumbnail square source={{ uri: this.state.thumbnail }} /> : <View />
+                            }
+                        </View>
                     </Content>
                 </Container>
             </StyleProvider>
@@ -169,7 +206,7 @@ export default class OrderDetail extends Component {
     _calculateTotal() {
         var total = 0;
         for (let i = 0; i < this.state.data.length; ++i) {
-            total = total + this.state.data[i]['price']*this.state.data[i]['quantity'];
+            total = total + this.state.data[i]['price'] * this.state.data[i]['quantity'];
         }
         return total
     }
