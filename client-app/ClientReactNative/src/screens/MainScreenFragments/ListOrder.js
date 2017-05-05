@@ -154,7 +154,8 @@ class ListOrder extends Component {
                     emptyView={this._renderEmptyView}
                     paginationWaitingView={this._renderPaginationWaitingView}
                     refreshableTintColor="blue"
-                    contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}
+                    style={{ flex: 1, alignSelf: 'stretch' }}
+					enableEmptySections
                 />
                 
             </View>

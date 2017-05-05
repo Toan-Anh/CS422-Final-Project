@@ -185,7 +185,7 @@ export default class CreateOrder extends Component {
 
     _renderDishItem(item, idx) {
         return (
-            <View style={styles.dishItemContainer}>
+            <View style={styles.dishItemContainer} key={item.name}>
                 <View style={styles.dishThumbnailContainer}>
                     <Thumbnail square source={{ uri: item.image }} />
                 </View>
@@ -198,7 +198,7 @@ export default class CreateOrder extends Component {
                     </Text>
                 </View>
 
-                <TouchableNativeFeedback onPress={(idx) => this._onDeleteDish(idx)}>
+                <TouchableNativeFeedback onPress={(e) => this._onDeleteDish(e, idx)}>
                     <View style={styles.dishRemovalContainer}>
                         <Icon name={'md-close'} style={{ textAlign: 'center', color: 'gray' }} />
                     </View>
@@ -207,9 +207,10 @@ export default class CreateOrder extends Component {
         );
     }
 
-    _onDeleteDish(idx) {
+    _onDeleteDish(e, idx) {
         var newDishes = this.state.dishes;
         newDishes.splice(idx, 1);
+		console.log(idx);
         this.setState({
             dishes: newDishes
         });

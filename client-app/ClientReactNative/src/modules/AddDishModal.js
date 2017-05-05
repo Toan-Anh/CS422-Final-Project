@@ -178,8 +178,8 @@ export default class FancyModal extends Component {
         return (
             <TextInput style={{ borderWidth: 1, borderRadius: 5, borderColor: 'gray' }}
                 placeholder='Input quantity here'
-                onChangeText={(quantity) => { this.setState({ quantity: quantity }) }}
-                value={this.state.quantity}
+                onChangeText={(quantity) => { this.setState({ quantity: quantity !== '' ? parseInt(quantity) : 0 }) }}
+                value={this.state.quantity.toString()}
                 multiline
                 underlineColorAndroid={'transparent'}
                 keyboardType={'numeric'}
