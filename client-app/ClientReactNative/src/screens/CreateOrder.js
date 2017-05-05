@@ -77,7 +77,7 @@ export default class CreateOrder extends Component {
                 </Content>
             )
             : (
-                <Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}>
+                <Content>
                     <View style={styles.mainHeader}>
                         {this._renderTitle('Table')}
                         {this._renderTablePicker()}
@@ -130,7 +130,8 @@ export default class CreateOrder extends Component {
             newOrders.push({
                 dishes: that.state.dishes,
                 state: 'preparing',
-                time: moment().format('X')
+                time: moment().format('X'),
+                note: that.state.noteText
             });
             ordersRef.set(newOrders);
             Actions.pop();

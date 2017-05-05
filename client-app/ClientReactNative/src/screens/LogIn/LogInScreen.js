@@ -13,7 +13,6 @@ import { Actions } from 'react-native-router-flux';
 import * as firebase from 'firebase';
 import variables from '../../../native-base-theme/variables/platform';
 import CustomizedActivityIndicator from '../../modules/CustomizedActivityIndicator';
-import KeyboardSpacer from 'react-native-keyboard-spacer';
 
 class LogInScreen extends Component {
     constructor(props) {
@@ -70,8 +69,6 @@ class LogInScreen extends Component {
                     <Button block style={{ backgroundColor: variables.toolbarDefaultBg }} onPress={this._logIn}>
                         <Text style={{ color: 'white' }}> Log in </Text>
                     </Button>
-
-                    <KeyboardSpacer />
                 </Form>
             );
         return (

@@ -26,7 +26,6 @@ class ListOrder extends Component {
         this._onFetch = this._onFetch.bind(this);
         this._renderRowView = this._renderRowView.bind(this);
         this._renderPaginationWaitingView = this._renderPaginationWaitingView.bind(this);
-        this._onFabClick = this._onFabClick.bind(this);
     }
 
     componentDidMount() {
@@ -157,14 +156,12 @@ class ListOrder extends Component {
                     refreshableTintColor="blue"
                     contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}
                 />
-                <CustomizedFAB onFabClick={this._onFabClick}/>
+                
             </View>
         )
     }
 
-    _onFabClick() {
-        Actions.createorder();
-    }
+    
 
 }
 
