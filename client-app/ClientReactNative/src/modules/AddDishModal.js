@@ -67,6 +67,11 @@ export default class FancyModal extends Component {
         });
     }
 
+    componentWillUnmount() {
+        var dishesRef = firebase.database().ref('dishes');
+        dishesRef.off();
+    }
+
     componentWillReceiveProps(nextProps) {
         this.setState({ modalVisible: nextProps.visible });
     }
