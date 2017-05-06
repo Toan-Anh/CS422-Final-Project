@@ -61,7 +61,6 @@ export default class RecipeEditor extends Component {
 		let ingr = this.updatedRecipe.ingredients[index];
 		firebase.storage().ref().child(`images/${ingr.imageFile.name}`).put(ingr.imageFile)
 			.then(snapshot => {
-				console.log(snapshot.downloadURL);
 				ingr.image = snapshot.downloadURL;
 				delete ingr.imageFile;
 				this._updateRecipe(onDone);
@@ -94,7 +93,6 @@ export default class RecipeEditor extends Component {
 			description: '',
 			index: recipe.steps.length > 0 ? (recipe.steps[recipe.steps.length - 1].index + 1) : 0,
 		});
-		console.log(recipe.steps);
 		this.setState({ recipe: recipe });
 	}
 
