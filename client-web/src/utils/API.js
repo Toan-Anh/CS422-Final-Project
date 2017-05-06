@@ -1,5 +1,7 @@
+import * as firebase from 'firebase';
+
 export default {
-	getRecipes() {
+	getUserLevel(uid) {
 
 	}
 }

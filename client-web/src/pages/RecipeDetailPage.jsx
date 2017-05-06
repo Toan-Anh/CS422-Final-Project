@@ -121,42 +121,52 @@ export default class RecipeDetailPage extends Component {
 	}
 
 	render() {
-		let content = this.state.editing ? this._renderRecipeEditor() : this._renderRecipe();
-		let editButton = null;
-		if (!this.state.loading && !this.state.editing)
-			editButton = (
-				<span>
-					<Button bsStyle='primary'
-						onClick={(e) => { this.setState({ editing: true }) }}>
-						Edit recipe
+		if (!this.props.user)
+			return this._renderLoading();
+		if (this.props.user && this.props.user.level <= this.props.level) {
+			let content = this.state.editing ? this._renderRecipeEditor() : this._renderRecipe();
+			let editButton = null;
+			if (!this.state.loading && !this.state.editing)
+				editButton = (
+					<span>
+						<Button bsStyle='primary'
+							onClick={(e) => { this.setState({ editing: true }) }}>
+							Edit recipe
 					</Button>
-				</span>
-			);
-		else if (!this.state.loading)
-			editButton = (
-				<span>
-					<Button onClick={(e) => { this.setState({ editing: false }) }}>
-						Cancel editing
+					</span>
+				);
+			else if (!this.state.loading)
+				editButton = (
+					<span>
+						<Button onClick={(e) => { this.setState({ editing: false }) }}>
+							Cancel editing
 					</Button>
 
-					<Button bsStyle='primary'
-						onClick={(e) => { this._saveRecipe() }}>
-						Save recipe
+						<Button bsStyle='primary'
+							onClick={(e) => { this._saveRecipe() }}>
+							Save recipe
 					</Button>
-				</span>
-			);
+					</span>
+				);
 
-		return (
-			<div className='form-container'>
+			return (
+				<div className='form-container'>
 
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-					<h1 id='title'>{this.props.match.params.recipe_name}</h1>
-					{editButton}
+					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+						<h1 id='title'>{this.props.match.params.recipe_name}</h1>
+						{editButton}
+					</div>
+
+					{this.state.loading ? this._renderLoading() : content}
+
 				</div>
-
-				{this.state.loading ? this._renderLoading() : content}
-
-			</div>
-		);
+			);
+		}
+		else
+			return (
+				<div className="full-screen center">
+					<p>You don't have permission to access this page</p>
+				</div>
+			);
 	}
 }

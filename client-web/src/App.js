@@ -113,13 +113,15 @@ class App extends Component {
 				});
 			}
 			else
-				this._extractLevel(snapshot);
+				this._extractLevel(snapshot.val(), user, (user_level) => this._navigate(user_level));
 		});
 	}
 
 	_navigate(user_level) {
+		console.log(user_level);
 		if (this.props.location.pathname === '/') {
 			for (let i = 0; i < this.tabs.length; ++i) {
+				console.log('level', this.tabs[i].level);
 				if (user_level <= this.tabs[i].level) {
 					this._changeTab(i);
 					break;
@@ -179,13 +181,15 @@ class App extends Component {
 			<div className="sidebar-container">
 				<img id='sidebar-logo' alt='logo' src={require('./res/logo.svg')} />
 				{this.tabs.map((item, index) => {
-					return (
-						<div key={item.path}
-							className={'sidebar-item' + (this.state.currentTab === index ? " sidebar-item-active" : "")}
-							onClick={() => { this._changeTab(index) }}>
-							{item.title}
-						</div>
-					);
+					if (this.state.currentUser && item.level >= this.state.currentUser.level)
+						return (
+							<div key={item.path}
+								className={'sidebar-item' + (this.state.currentTab === index ? " sidebar-item-active" : "")}
+								onClick={() => { this._changeTab(index) }}>
+								{item.title}
+							</div>
+						);
+					return <div/>;
 				})}
 			</div>
 		);

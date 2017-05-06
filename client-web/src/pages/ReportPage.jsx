@@ -40,7 +40,9 @@ export default class ReportPage extends Component {
 	}
 
 	render() {
-		if (this.props.user.level <= this.prop.level)
+		if (!this.props.user)
+			return this._renderLoading();
+		if (this.props.user && this.props.user.level <= this.props.level)
 			return (
 				<div className='form-container'>
 
@@ -50,6 +52,10 @@ export default class ReportPage extends Component {
 				</div>
 			);
 		else
-			return (`You don't have permission to access this page`);
+			return (
+				<div className="full-screen center">
+					<p>You don't have permission to access this page</p>
+				</div>
+			);
 	}
 }

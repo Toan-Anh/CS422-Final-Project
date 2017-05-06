@@ -168,13 +168,22 @@ export default class OrderPage extends Component {
 	}
 
 	render() {
-		return (
-			<div className='form-container'>
+		if (!this.props.user)
+			return this._renderLoading();
+		if (this.props.user && this.props.user.level <= this.props.level)
+			return (
+				<div className='form-container'>
 
-				<h1 id='title'>Orders</h1>
-				{this.state.loading ? this._renderLoading() : this._renderTable()}
+					<h1 id='title'>Orders</h1>
+					{this.state.loading ? this._renderLoading() : this._renderTable()}
 
-			</div>
-		);
+				</div>
+			);
+		else
+			return (
+				<div className="full-screen center">
+					<p>You don't have permission to access this page</p>
+				</div>
+			);
 	}
 }
