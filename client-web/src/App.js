@@ -118,10 +118,8 @@ class App extends Component {
 	}
 
 	_navigate(user_level) {
-		console.log(user_level);
 		if (this.props.location.pathname === '/') {
 			for (let i = 0; i < this.tabs.length; ++i) {
-				console.log('level', this.tabs[i].level);
 				if (user_level <= this.tabs[i].level) {
 					this._changeTab(i);
 					break;

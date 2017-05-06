@@ -29,8 +29,6 @@ export default class AddIngredientModal extends Component {
 		let name = this.newIngrName.value;
 		let amount = this.newIngrAmount.value;
 
-		console.log(name, amount);
-
 		if (!name || name === '') {
 			this.setState({ errorMsg: 'Ingredient name cannot be empty', nameValidState: 'error', amountValidState: null });
 		}

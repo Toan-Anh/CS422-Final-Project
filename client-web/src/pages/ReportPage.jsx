@@ -35,7 +35,6 @@ export default class ReportPage extends Component {
 	}
 
 	_renderTable() {
-		console.log(this.state.records);
 		return (null);
 	}
 
