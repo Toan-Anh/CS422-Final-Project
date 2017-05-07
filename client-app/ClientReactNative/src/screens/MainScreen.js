@@ -61,23 +61,19 @@ class MainScreen extends Component {
 				</Content>
 			)
 			: (
-				<Tabs>
-					<Tab heading="List Order">
-						<ListOrder />
-						<CustomizedFAB onFabClick={this._onFabClick} />
-					</Tab>
-					<Tab heading="Notification">
-						<View />
-					</Tab>
-				</Tabs>
+				<Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}>
+					<ListOrder />
+					<CustomizedFAB onFabClick={this._onFabClick} />
+				</Content>
+
 
 			)
 		return (
 			<StyleProvider style={getTheme(variables)}>
 				<Container>
-					<Header hasTabs>
+					<Header>
 						<Body>
-							<Title>Main Menu</Title>
+							<Title>List Order</Title>
 						</Body>
 						<Right>
 							<ModalDropdown

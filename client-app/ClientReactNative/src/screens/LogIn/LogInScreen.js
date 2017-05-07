@@ -20,16 +20,25 @@ class LogInScreen extends Component {
         this.state = {
             email: '',
             password: '',
-            loading: false,
+            loading: true,
         }
 
         this._logIn = this._logIn.bind(this);
     }
 
     componentWillMount() {
+        var that = this;
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
+                that.setState({
+                    loading: false
+                });
                 Actions.mainscreen();
+            }
+            else {
+                that.setState({
+                    loading: false
+                });
             }
         })
     }

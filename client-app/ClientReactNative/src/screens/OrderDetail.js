@@ -4,7 +4,9 @@ import {
 	StyleSheet,
 	Text,
 	View,
-	CameraRoll
+	CameraRoll,
+	InteractionManager,
+	ScrollView
 } from 'react-native';
 import { Container, Content, Tab, Tabs, Header, Body, Title, StyleProvider, getTheme, Left, Button, Icon, Right, Thumbnail } from 'native-base';
 import { Actions } from 'react-native-router-flux';
@@ -40,7 +42,7 @@ export default class OrderDetail extends Component {
 				//     price: 30000
 				// }
 			],
-			isLoading: false,
+			isLoading: true,
 			key: null
 		}
 		moment.locale('vi');
@@ -53,14 +55,17 @@ export default class OrderDetail extends Component {
 
 	componentDidMount() {
 		var that = this;
-		this.setState({ isLoading: true });
-		var tableRef = firebase.database().ref('orders/' + this.props.table);
-		tableRef.once('value', function (snapshot) {
-			var processedData = that._preprocessData(snapshot.val());
-			that.setState({
-				data: processedData
-			})
-		});
+		InteractionManager.runAfterInteractions(() => {
+			var tableRef = firebase.database().ref('orders/' + this.props.table);
+			tableRef.once('value', function (snapshot) {
+				var processedData = that._preprocessData(snapshot.val());
+				that.setState({
+					data: processedData,
+					isLoading: false
+				})
+			});
+		})
+
 	}
 
 	componentWillUnmount() {
@@ -113,7 +118,7 @@ export default class OrderDetail extends Component {
 	_onExportOrder() {
 		var that = this;
 		var day = moment().date();
-		var month = moment().month();
+		var month = moment().month() + 1;
 		var year = moment().year();
 		let key = firebase.database().ref(`/records/${year}/${month}/${day}/orders`).push({
 			table: this.props.table,
@@ -123,15 +128,55 @@ export default class OrderDetail extends Component {
 
 	}
 
+	_renderBillingRow(left, right) {
+		return (
+			<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+				<Text style={[styles.billingNormalText, { textAlign: 'left' }]}>
+					{left}
+				</Text>
+				<Text style={[styles.billingNormalText, { textAlign: 'right' }]}>
+					{right}
+				</Text>
+			</View>
+		);
+	}
+
 	render() {
 		var printKey = this.state.key
 			? (
-				<Text style={{ fontSize: 20, color: 'black', borderBottomWidth: 1, borderBottomColor: 'black', marginBottom: 30 }}>
-					Note ID: {this.state.key}
-				</Text>
+				<View>
+					<Text style={{ fontSize: 35, color: 'black', marginBottom: 50, fontFamily: 'script9', textAlign: 'center' }}>
+						Mini Restaurant
+					</Text>
+					{this._renderBillingRow('Table:', this.props.table)}
+					{this._renderBillingRow('Order ID:', this.state.key)}
+					{this._renderBillingRow(moment().format('hh:mm a'), moment().format('MMM Do, YYYY'))}
+					<View style={{ marginBottom: 25, borderTopWidth: 1, borderTopColor: 'black' }} />
+				</View>
 			)
 			:
-			<View />
+			<View />;
+		var content = this.state.isLoading
+			? (
+				<View style={{
+					flex: 1,
+					alignSelf: 'stretch',
+					alignItems: 'center',
+					justifyContent: 'center',
+				}}>
+					<CustomizedActivityIndicator />
+				</View>
+			)
+			: (
+				<ScrollView>
+					<View style={{ padding: 10, backgroundColor: 'white' }} ref={'contentToPrint'} collapsable={false}>
+						{printKey}
+						{this._renderHeaderRow()}
+						{this.state.data.map(this._renderDishItem)}
+						{this._renderTotal()}
+					</View>
+				</ScrollView>
+			)
 		return (
 			<StyleProvider style={getTheme(variables)}>
 				<Container>
@@ -150,13 +195,8 @@ export default class OrderDetail extends Component {
 							</Button>
 						</Right>
 					</Header>
-					<Content>
-						<View style={{ padding: 10, backgroundColor: 'white' }} ref={'contentToPrint'} collapsable={false}>
-							{printKey}
-							{this._renderHeaderRow()}
-							{this.state.data.map(this._renderDishItem)}
-							{this._renderTotal()}
-						</View>
+					<Content contentContainerStyle={{ flex: 1, alignSelf: 'stretch' }}>
+						{content}
 					</Content>
 				</Container>
 			</StyleProvider>
@@ -267,5 +307,9 @@ const styles = StyleSheet.create({
 		borderTopWidth: 1,
 		borderTopColor: 'black',
 		paddingTop: 10
+	},
+	billingNormalText: {
+		fontSize: 16,
+		color: 'black'
 	}
 });
