@@ -12,6 +12,7 @@
     "history": "^4.6.1",
     "react": "^15.4.2",
     "react-bootstrap": "^0.30.8",
+    "react-bootstrap-date-picker": "^5.0.1",
     "react-bootstrap-table": "^3.1.7",
     "react-dom": "^15.4.2",
     "react-router": "^4.0.0",

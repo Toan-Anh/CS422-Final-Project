@@ -31,10 +31,12 @@ const sidebarStyle = {
 		backgroundColor: 'white',
 		// padding: '16px 24px',
 		minWidth: 320,
+		zIndex: 11,
 	},
 	content: {
 	},
 	overlay: {
+		zIndex: 10,
 	},
 	dragHandle: {
 	},
@@ -63,6 +65,7 @@ class App extends Component {
 		this.mql = window.matchMedia(`(min-width: 1520px)`);
 		this._mediaQueryChanged = this._mediaQueryChanged.bind(this);
 		this._onSetSidebarOpen = this._onSetSidebarOpen.bind(this);
+		this._onOrderAdded = this._onOrderAdded.bind(this);
 	}
 
 	_onSetSidebarOpen(open) {
@@ -74,6 +77,9 @@ class App extends Component {
 	}
 
 	componentWillMount() {
+		this.orderRef = firebase.database().ref(`/orders/`);
+		this.orderRef.on('child_added', this._onOrderAdded);
+
 		this.mql.addListener(this._mediaQueryChanged);
 		this.setState({ sidebarDocked: this.mql.matches });
 
@@ -88,6 +94,7 @@ class App extends Component {
 
 	componentWillUnmount() {
 		this.mql.removeListener(this.mediaQueryChanged);
+		this.orderRef.off('child_added', this._onOrderAdded);
 	}
 
 	_extractLevel(users, user, callback) {
@@ -132,6 +139,46 @@ class App extends Component {
 					this._changeTab(index);
 			});
 		}
+	}
+
+	_onOrderAdded(snapshot) {
+		if (this.state.currentUser && this.state.currentUser.level <= 1) {
+			let title = 'New order';
+			let options = {
+				body: 'A new order has arrived',
+				icon: "https://firebasestorage.googleapis.com/v0/b/mini-restaurant-management.appspot.com/o/logo.png?alt=media&token=2d22531d-5c69-4ffb-bc44-8d1719345665",
+				url: '/orders'
+			};
+
+			this._notifyUser(title, options);
+		}
+	}
+
+	_notifyUser(title, options) {
+		if (!("Notification" in window)) {
+			console.log("This browser does not support desktop notification");
+		}
+		// Let's check whether notification permissions have already been granted
+		else if (Notification.permission === "granted") {
+			// If it's okay let's create a notification
+			// var notification = new Notification(title, options);
+			// notification.onclick = () => window.open('/orders');
+			new Notification(title, options);
+		}
+		// Otherwise, we need to ask the user for permission
+		else if (Notification.permission !== "denied") {
+			Notification.requestPermission(function (permission) {
+				// If the user accepts, let's create a notification
+				if (permission === "granted") {
+					// var notification = new Notification(title, options);
+					// notification.onclick = () => window.open('/orders');
+					new Notification(title, options);
+				}
+			});
+		}
+
+		// At last, if the user has denied notifications, and you 
+		// want to be respectful there is no need to bother them any more.
 	}
 
 	_onNavSelect() {
@@ -187,7 +234,7 @@ class App extends Component {
 								{item.title}
 							</div>
 						);
-					return <div/>;
+					return <div key={item.path} />;
 				})}
 			</div>
 		);
@@ -218,7 +265,8 @@ class App extends Component {
 									<item.component level={item.level} user={this.state.currentUser} {...props} />} />
 							);
 						})}
-						<Route path='/recipes/:recipe_name' component={RecipeDetailPage} level={2} />
+						<Route path='/recipes/:recipe_name' render={(props) =>
+							<RecipeDetailPage level={2} user={this.state.currentUser} {...props} />} />
 
 					</div>
 

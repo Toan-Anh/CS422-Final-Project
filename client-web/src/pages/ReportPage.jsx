@@ -1,4 +1,16 @@
 import React, { Component } from 'react';
+import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
+import {
+	Button,
+	Row,
+	Col,
+	FormGroup,
+	FormControl,
+	Tabs,
+	Tab,
+	// ControlLabel,
+} from 'react-bootstrap';
+import DatePicker from 'react-bootstrap-date-picker';
 import * as firebase from 'firebase';
 
 export default class ReportPage extends Component {
@@ -7,9 +19,14 @@ export default class ReportPage extends Component {
 		this.state = {
 			loading: true,
 			records: null,
+			currentDate: new Date(),
+			currentTab: 1,
+			newExpensePurpose: '',
+			newExpenseValue: 0,
 		};
 
 		this._onRecordsReceived = this._onRecordsReceived.bind(this);
+		this._onAddExpense = this._onAddExpense.bind(this);
 	}
 
 	_onRecordsReceived(snapshot) {
@@ -34,8 +51,395 @@ export default class ReportPage extends Component {
 		);
 	}
 
-	_renderTable() {
-		return (null);
+	_renderContent() {
+		return (
+			<div>
+				<Tabs activeKey={this.state.key} onSelect={(key) => { this.setState({ currentTab: key }) }} id="tab">
+					<Tab eventKey={1} title="Daily Report">
+						{this._renderDailyReport()}
+					</Tab>
+					<Tab eventKey={2} title="Monthly Report">
+						{this._renderMonthlyReport()}
+					</Tab>
+					<Tab eventKey={3} title="Annual Report">
+						{this._renderYearlyReport()}
+					</Tab>
+				</Tabs>
+			</div>
+		);
+	}
+
+	_renderDailyReport(date) {
+		if (!date || !date.day || !date.month || !date.year) {
+			let currentDate = this.state.currentDate;
+			date = {
+				day: currentDate.getDate(),
+				month: currentDate.getMonth() + 1,
+				year: currentDate.getFullYear(),
+			};
+		}
+
+		try {
+			let records = this.state.records[date.year][date.month][date.day];
+			let { orderData, income } = this._processDailyIncomeData(date, records.orders);
+			let { expenseData, expense } = this._processDailyExpenseData(date, records.expenses);
+			let balance = income - expense
+
+			return (
+				<div>
+					<FormGroup controlId="formDate">
+						<DatePicker id="datepicker"
+							value={this.state.currentDate.toISOString()}
+							onChange={(v, f) => { this.setState({ currentDate: new Date(v) }) }} />
+					</FormGroup>
+					{this._renderBalance(date, balance)}
+					{this._renderIncomes(date, orderData, income)}
+					{this._renderExpenses(date, expenseData, expense)}
+				</div>
+			);
+		} catch (err) {
+			// console.log(err);
+			return (
+				<div>
+					<p>There is no data for this date!</p>
+					<p>Please choose another date.</p>
+					<FormGroup controlId="formDate">
+						<DatePicker id="datepicker"
+							value={this.state.currentDate.toISOString()}
+							onChange={(v, f) => { this.setState({ currentDate: new Date(v) }) }} />
+					</FormGroup>
+				</div>
+			);
+		}
+	}
+
+	_renderMonthlyReport(date) {
+		if (!date || !date.month || !date.year) {
+			let currentDate = this.state.currentDate;
+			date = {
+				day: currentDate.getDate(),
+				month: currentDate.getMonth() + 1,
+				year: currentDate.getFullYear(),
+			};
+		}
+
+		try {
+			let records = this.state.records[date.year][date.month];
+			let { mOrderData, mIncome, mExpenseData, mExpense, mBalance } = this._processMonthlyData(date, records);
+
+			return (
+				<div>
+					<FormGroup controlId="formMonth">
+						{/*Month input*/}
+					</FormGroup>
+					{this._renderBalance(date, mBalance)}
+					{this._renderIncomes(date, mOrderData, mIncome)}
+					{this._renderExpenses(date, mExpenseData, mExpense)}
+				</div>
+			);
+		} catch (err) {
+			// console.log(err);
+			return (
+				<div>
+					<p>There is no data for this month!</p>
+					<p>Please choose another month.</p>
+					{/*Month input*/}
+				</div>
+			);
+		}
+	}
+
+	_renderYearlyReport(date) {
+		if (!date || !date.day || !date.month || !date.year) {
+			let currentDate = this.state.currentDate;
+			date = {
+				day: currentDate.getDate(),
+				month: currentDate.getMonth() + 1,
+				year: currentDate.getFullYear(),
+			};
+		}
+
+		try {
+			let records = this.state.records[date.year];
+			let yOrderData = [], yExpenseData = [];
+			let yIncome = 0, yExpense = 0;
+
+			Object.keys(records).forEach(month => {
+				let { mOrderData, mIncome, mExpenseData, mExpense } = this._processMonthlyData(date, records[month]);
+			});
+			let yBalance = yIncome - yExpense;
+
+			return (
+				<div>
+					<FormGroup controlId="formYear">
+						{/*Year input*/}
+					</FormGroup>
+					{/*{this._renderBalance(date, balance)}
+					{this._renderIncomes(date, orderData, income)}
+					{this._renderExpenses(date, expenseData, expense)}*/}
+				</div>
+			);
+		} catch (err) {
+			// console.log(err);
+			return (
+				<div>
+					<p>There is no data for this year!</p>
+					<p>Please choose another year.</p>
+					{/*Year input*/}
+				</div>
+			);
+		}
+	}
+
+	_renderBalance(date, balance) {
+		return (
+			<h2>Balance: {balance.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h2>
+		);
+	}
+
+	_processDailyIncomeData(date, data) {
+		let total = 0;
+		let tableData = [];
+		let d = `0${date.day}/0${date.month}/${date.year}`;
+
+		if (data)
+			Object.keys(data).forEach((orderID, index) => {
+				let orderTotal = 0;
+				let dishes = [];
+				data[orderID].dishes.forEach((dish) => {
+					orderTotal += (dish.price * dish.quantity);
+					dishes.push({
+						dish: dish.dish,
+						quantity: dish.quantity,
+					});
+				});
+
+				tableData.push({
+					orderID,
+					dishes,
+					orderTotal,
+					date: d,
+				})
+				total += orderTotal;
+			});
+
+		return { orderData: tableData, income: total };
+	}
+
+	_processDailyExpenseData(date, data) {
+		let total = 0;
+		let tableData = [];
+		let d = `0${date.day}/0${date.month}/${date.year}`;
+
+		if (data)
+			Object.keys(data).forEach((key, index) => {
+				total += data[key].value;
+				tableData.push({ date: d, ...data[key] });
+			});
+
+		return { expenseData: tableData, expense: total };
+	}
+
+	_processMonthlyData(date, data) {
+		let mOrderData = [], mExpenseData = [];
+		let mIncome = 0, mExpense = 0;
+		let d = {
+			year: date.year,
+			month: date.month,
+		}
+
+		if (data)
+			Object.keys(data).forEach(day => {
+				d.day = day;
+				let { orderData, income } = this._processDailyIncomeData(d, data[day].orders);
+				let { expenseData, expense } = this._processDailyExpenseData(d, data[day].expenses);
+				mOrderData = mOrderData.concat(orderData);
+				mExpenseData = mExpenseData.concat(expenseData);
+				mIncome += income;
+				mExpense += expense;
+			});
+		let mBalance = mIncome - mExpense;
+
+		return { mOrderData, mIncome, mExpenseData, mExpense, mBalance };
+	}
+
+	_processYearlyData(data) {
+
+	}
+
+	_renderIncomes(date, data, income) {
+		const styles = {
+			headerStyle: {
+				backgroundColor: 'white',
+			},
+			tableStyle: {
+				margin: 0,
+			},
+		};
+
+		return (
+			<div>
+				<h2 style={{ display: 'flex' }}>
+					Incomes: {income.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+				</h2>
+
+
+				<BootstrapTable ref={(ref) => this.incomeTable = ref}
+					data={data}
+					{...styles}>
+
+					<TableHeaderColumn isKey
+						dataField="orderID"
+						dataAlign="left"
+						dataSort>
+						Order ID
+					</TableHeaderColumn>
+
+					<TableHeaderColumn
+						dataField="date"
+						dataAlign="left"
+						dataSort>
+						Date
+					</TableHeaderColumn>
+
+					<TableHeaderColumn
+						dataField="dishes"
+						dataAlign="left"
+						dataSort
+						dataFormat={this._renderDishes}>
+						Dishes
+					</TableHeaderColumn>
+
+					<TableHeaderColumn
+						dataField="orderTotal"
+						dataAlign="right"
+						dataSort
+						dataFormat={this._renderMoney}>
+						Total
+					</TableHeaderColumn>
+				</BootstrapTable>
+			</div>
+		)
+	}
+
+	_renderDishes(cell, row, extra, index) {
+		return (
+			<div>
+				{cell.map((dish) => {
+					return <div key={`${index}_${dish.dish}`}>{`- ${dish.quantity} ${dish.dish}`}</div>;
+				})}
+			</div>
+		);
+	}
+
+	_renderMoney(cell, row) {
+		return cell.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+	}
+
+	_renderExpenses(date, data, expense) {
+		const styles = {
+			headerStyle: {
+				backgroundColor: 'white',
+			},
+			tableStyle: {
+				margin: 0,
+			},
+		};
+
+		return (
+			<div>
+				<h2 style={{ display: 'flex' }}>
+					Expenses: {expense.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+				</h2>
+
+				{data.day ? this._renderExpenseInput() : null}
+
+				<BootstrapTable ref={(ref) => this.expenseTable = ref}
+					data={data}
+					{...styles}>
+
+					<TableHeaderColumn isKey
+						dataField="purpose"
+						dataAlign="left"
+						dataSort>
+						#
+					</TableHeaderColumn>
+
+					<TableHeaderColumn
+						dataField="date"
+						dataAlign="left"
+						dataSort>
+						Date
+					</TableHeaderColumn>
+
+					<TableHeaderColumn
+						dataField="purpose"
+						dataAlign="left"
+						dataSort>
+						Purpose
+					</TableHeaderColumn>
+
+					<TableHeaderColumn
+						dataField="value"
+						dataAlign="right"
+						dataSort
+						dataFormat={this._renderMoney}>
+						Value
+					</TableHeaderColumn>
+				</BootstrapTable>
+			</div>
+		)
+	}
+
+	_renderExpenseInput(date) {
+		return (
+			<Row>
+				<Col xs={8} sm={6}>
+					<FormGroup controlId="formPurpose">
+						<FormControl
+							type="text"
+							placeholder="Expense purpose"
+							value={this.state.newExpensePurpose}
+							onChange={(e) => this.setState({ newExpensePurpose: e.target.value })}
+						/>
+					</FormGroup>
+				</Col>
+
+				<Col xs={4} sm={4}>
+					<FormGroup controlId="formValue">
+						<FormControl
+							type="number"
+							placeholder="Expense value"
+							value={this.state.newExpenseValue}
+							onChange={(e) => this.setState({ newExpenseValue: e.target.value !== '' ? parseInt(e.target.value, 10) : 0 })}
+						/>
+					</FormGroup>
+				</Col>
+
+				<Col xs={12} sm={2} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+					<Button bsStyle='primary' onClick={this._onAddExpense}>Enter expense</Button>
+				</Col>
+			</Row>
+		);
+	}
+
+	_onAddExpense() {
+		if (this.state.newExpensePurpose === '' || this.state.newExpenseValue === 0) {
+			alert(`Please enter expense information before submitting.`);
+			return;
+		}
+
+		let date = this.state.currentDate;
+		firebase.database().ref(`/records/${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}/expenses`)
+			.push({
+				purpose: this.state.newExpensePurpose,
+				value: this.state.newExpenseValue,
+			});
+
+		this.setState({
+			newExpensePurpose: '',
+			newExpenseValue: 0,
+		});
 	}
 
 	render() {
@@ -46,7 +450,7 @@ export default class ReportPage extends Component {
 				<div className='form-container'>
 
 					<h1 id='title'>Report</h1>
-					{this.state.loading ? this._renderLoading() : this._renderTable()}
+					{this.state.loading ? this._renderLoading() : this._renderContent()}
 
 				</div>
 			);

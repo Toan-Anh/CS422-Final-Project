@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 import {
-	Row,
-	Col,
 } from 'react-bootstrap';
 import * as firebase from 'firebase';
 import moment from 'moment';
@@ -39,52 +37,41 @@ export default class OrderPage extends Component {
 		let count = 0;
 		snapshot.forEach((child) => {
 			child.val().forEach((order, index) => {
-				orders.push({
-					tableOrderIndex: index,
-					index: ++count,
-					table: child.key,
-					dishes: order.dishes,
-					time: order.time,
-					state: order.state,
-				});
+				if (order.state === 'preparing')
+					orders.push({
+						tableOrderIndex: index,
+						index: ++count,
+						table: child.key,
+						dishes: order.dishes,
+						time: order.time,
+						state: order.state,
+					});
 			});
 		});
 		this.setState({ orders: orders, loading: false });
 	}
 
 	_onOrderReady(e, row) {
-		firebase.database().ref(`/orders/${row.table}/${row.tableOrderIndex}/state`).set(`ready`)
+		firebase.database().ref(`/orders/${row.table}/${row.tableOrderIndex}/state`).set(`ready`);
 	}
 
 	_renderTime(cell, row) {
 		return moment(moment.unix(cell)).fromNow();
 	}
 
-	_renderDishes(cell, row) {
+	_renderDishes(cell, row, extra, index) {
 		return (
 			<div>
-				<Row className='dish-header-row'>
-					<Col xs={8} className="dish-left-column">Dish</Col>
-					<Col xs={4}>Quantity</Col>
-				</Row>
-
-				{
-					Object.keys(cell).map((dish, index) => {
-						return (
-							<Row key={dish} className='dish-entry-row'>
-								<Col xs={8} className="dish-left-column">{dish}</Col>
-								<Col xs={4}>{cell[dish].quantity}</Col>
-							</Row>
-						);
-					})
-				}
+				{cell.map((dish) => {
+					return <div key={`${index}_${dish.name}`}>{`- ${dish.quantity} ${dish.name}`}</div>;
+				})}
 			</div>
 		);
 	}
 
 	_renderState(cell, row) {
 		return (
-			<i className={`clickable fa ${cell !== `processing` ? "fa-check-square" : "fa-square-o"}`}
+			<i className={`clickable fa ${cell !== `preparing` ? "fa-check-square" : "fa-square-o"}`}
 				onClick={e => this._onOrderReady(e, row)} />
 		);
 	}
@@ -146,7 +133,7 @@ export default class OrderPage extends Component {
 
 					<TableHeaderColumn
 						dataField="dishes"
-						dataAlign="center"
+						dataAlign="left"
 						dataSort
 						dataFormat={this._renderDishes}
 						width='50%'>
