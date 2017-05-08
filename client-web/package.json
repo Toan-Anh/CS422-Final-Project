@@ -8,12 +8,14 @@
     "react-scripts": "0.9.5"
   },
   "dependencies": {
+    "chart.js": "^2.5.0",
     "firebase": "^3.7.5",
     "history": "^4.6.1",
     "react": "^15.4.2",
     "react-bootstrap": "^0.30.8",
     "react-bootstrap-date-picker": "^5.0.1",
     "react-bootstrap-table": "^3.1.7",
+    "react-chartjs-2": "^2.1.0",
     "react-dom": "^15.4.2",
     "react-router": "^4.0.0",
     "react-router-dom": "^4.0.0",

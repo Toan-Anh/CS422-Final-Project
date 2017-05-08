@@ -4,12 +4,15 @@ import {
 	Button,
 	Row,
 	Col,
+	Form,
 	FormGroup,
 	FormControl,
+	ControlLabel,
 	Tabs,
 	Tab,
 	// ControlLabel,
 } from 'react-bootstrap';
+import { HorizontalBar } from 'react-chartjs-2';
 import DatePicker from 'react-bootstrap-date-picker';
 import * as firebase from 'firebase';
 
@@ -125,28 +128,63 @@ export default class ReportPage extends Component {
 
 		try {
 			let records = this.state.records[date.year][date.month];
-			let { mOrderData, mIncome, mExpenseData, mExpense, mBalance } = this._processMonthlyData(date, records);
+			let { mOrderData, mIncome, mExpenseData, mExpense } = this._processMonthlyData(date, records);
+			let mBalance = mIncome - mExpense;
 
 			return (
 				<div>
-					<FormGroup controlId="formMonth">
-						{/*Month input*/}
-					</FormGroup>
-					{this._renderBalance(date, mBalance)}
-					{this._renderIncomes(date, mOrderData, mIncome)}
-					{this._renderExpenses(date, mExpenseData, mExpense)}
+					{this._renderMonthInput(date)}
+					<h2>Balance: {mBalance.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h2>
+					{this._renderMonthChart(date, { income: mOrderData, expense: mExpenseData })}
 				</div>
 			);
 		} catch (err) {
 			// console.log(err);
 			return (
 				<div>
-					<p>There is no data for this month!</p>
-					<p>Please choose another month.</p>
-					{/*Month input*/}
+					<p>There is no data for this year and/or month!</p>
+					<p>Please choose another year and/or month.</p>
+					{this._renderMonthInput(date)}
 				</div>
 			);
 		}
+	}
+
+	_renderMonthInput(date) {
+		return (
+			<Form inline>
+				<FormGroup controlId="formMonth">
+					<ControlLabel>Month</ControlLabel>
+					<FormControl
+						type="number"
+						value={this.state.currentDate.getMonth() + 1}
+						placeholder="Month"
+						onChange={(e) => {
+							let month = e.target.value ? parseInt(e.target.value, 10) : date.month;
+							month = Math.min(Math.max(month - 1, 0), 11);
+							this.setState({
+								currentDate: new Date(date.year, month, 1),
+							});
+						}}
+					/>
+				</FormGroup>
+
+				<FormGroup controlId="formMonthYear">
+					<ControlLabel>Year</ControlLabel>
+					<FormControl
+						type="number"
+						value={this.state.currentDate.getFullYear()}
+						placeholder="Year"
+						onChange={(e) => {
+							let year = e.target.value ? parseInt(e.target.value, 10) : date.year;
+							this.setState({
+								currentDate: new Date(year, date.month, 1),
+							});
+						}}
+					/>
+				</FormGroup>
+			</Form>
+		);
 	}
 
 	_renderYearlyReport(date) {
@@ -161,34 +199,126 @@ export default class ReportPage extends Component {
 
 		try {
 			let records = this.state.records[date.year];
-			let yOrderData = [], yExpenseData = [];
-			let yIncome = 0, yExpense = 0;
-
-			Object.keys(records).forEach(month => {
-				let { mOrderData, mIncome, mExpenseData, mExpense } = this._processMonthlyData(date, records[month]);
-			});
+			let { yOrderData, yIncome, yExpenseData, yExpense } = this._processYearlyData(date, records);
 			let yBalance = yIncome - yExpense;
 
 			return (
 				<div>
 					<FormGroup controlId="formYear">
-						{/*Year input*/}
+						<ControlLabel>Year</ControlLabel>
+						<FormControl
+							type="number"
+							value={this.state.currentDate.getFullYear()}
+							placeholder="Year"
+							onChange={(e) => {
+								let year = e.target.value ? parseInt(e.target.value, 10) : date.year;
+								this.setState({
+									currentDate: new Date(year, date.month, 1),
+								});
+							}}
+						/>
 					</FormGroup>
-					{/*{this._renderBalance(date, balance)}
-					{this._renderIncomes(date, orderData, income)}
-					{this._renderExpenses(date, expenseData, expense)}*/}
+					<h2>Balance: {yBalance.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h2>
+					{this._renderAnnualChart(date, { income: yOrderData, expense: yExpenseData })}
 				</div>
 			);
 		} catch (err) {
-			// console.log(err);
+			console.log(err);
 			return (
 				<div>
 					<p>There is no data for this year!</p>
 					<p>Please choose another year.</p>
-					{/*Year input*/}
+					<FormGroup controlId="formYear">
+						<ControlLabel>Year</ControlLabel>
+						<FormControl
+							type="number"
+							value={this.state.currentDate.getFullYear()}
+							placeholder="Year"
+							onChange={(e) => {
+								let year = e.target.value ? parseInt(e.target.value, 10) : date.year;
+								this.setState({
+									currentDate: new Date(year, date.month, 1),
+								});
+							}}
+						/>
+					</FormGroup>
 				</div>
 			);
 		}
+	}
+
+	_renderMonthChart(date, data) {
+		let chartData = {
+			labels: Array(31).fill().map((e, i) => i + 1).reverse(),
+			datasets: [{
+				label: 'Income',
+				data: data.income.reverse(),
+				backgroundColor: 'rgba(75, 192, 192, 0.2)',
+				borderColor: 'rgba(75, 192, 192, 1)',
+				borderWidth: 1
+			},
+			{
+				label: 'Expense',
+				data: data.expense.reverse(),
+				backgroundColor: 'rgba(255, 99, 132, 0.2)',
+				borderColor: 'rgba(255,99,132,1)',
+				borderWidth: 1
+			}]
+		}
+
+		const options = {
+			scales: {
+				yAxes: [{
+					scaleLabel: {
+						display: true,
+						labelString: 'Day',
+					}
+				}]
+			}
+		}
+
+		return (
+			<HorizontalBar data={chartData}
+				options={options}
+				height={620} />
+		);
+	}
+
+	_renderAnnualChart(date, data) {
+		let chartData = {
+			labels: Array(12).fill().map((e, i) => i + 1).reverse(),
+			datasets: [{
+				label: 'Income',
+				data: data.income.reverse(),
+				backgroundColor: 'rgba(75, 192, 192, 0.2)',
+				borderColor: 'rgba(75, 192, 192, 1)',
+				borderWidth: 1
+			},
+			{
+				label: 'Expense',
+				data: data.expense.reverse(),
+				backgroundColor: 'rgba(255, 99, 132, 0.2)',
+				borderColor: 'rgba(255,99,132,1)',
+				borderWidth: 1
+			}]
+		}
+
+		const options = {
+			scales: {
+				yAxes: [{
+					scaleLabel: {
+						display: true,
+						labelString: 'Month',
+					}
+				}]
+			}
+		}
+
+		return (
+			<HorizontalBar data={chartData}
+				options={options}
+				height={240} />
+		);
 	}
 
 	_renderBalance(date, balance) {
@@ -200,7 +330,7 @@ export default class ReportPage extends Component {
 	_processDailyIncomeData(date, data) {
 		let total = 0;
 		let tableData = [];
-		let d = `0${date.day}/0${date.month}/${date.year}`;
+		// let d = `0${date.day}/0${date.month}/${date.year}`;
 
 		if (data)
 			Object.keys(data).forEach((orderID, index) => {
@@ -218,7 +348,7 @@ export default class ReportPage extends Component {
 					orderID,
 					dishes,
 					orderTotal,
-					date: d,
+					// date: d,
 				})
 				total += orderTotal;
 			});
@@ -229,12 +359,15 @@ export default class ReportPage extends Component {
 	_processDailyExpenseData(date, data) {
 		let total = 0;
 		let tableData = [];
-		let d = `0${date.day}/0${date.month}/${date.year}`;
+		// let d = `0${date.day}/0${date.month}/${date.year}`;
 
 		if (data)
 			Object.keys(data).forEach((key, index) => {
 				total += data[key].value;
-				tableData.push({ date: d, ...data[key] });
+				// tableData.push({ index, date: d, ...data[key] });
+				tableData.push({
+					index: index + 1, ...data[key]
+				});
 			});
 
 		return { expenseData: tableData, expense: total };
@@ -249,22 +382,48 @@ export default class ReportPage extends Component {
 		}
 
 		if (data)
-			Object.keys(data).forEach(day => {
+			for (let day = 1; day < 32; ++day) {
+				if (!data[day]) {
+					mOrderData.push(0);
+					mExpenseData.push(0);
+					continue;
+				}
+
 				d.day = day;
-				let { orderData, income } = this._processDailyIncomeData(d, data[day].orders);
-				let { expenseData, expense } = this._processDailyExpenseData(d, data[day].expenses);
-				mOrderData = mOrderData.concat(orderData);
-				mExpenseData = mExpenseData.concat(expenseData);
+				let { income } = this._processDailyIncomeData(d, data[day].orders);
+				let { expense } = this._processDailyExpenseData(d, data[day].expenses);
+				mOrderData.push(income)
+				mExpenseData.push(-expense);
 				mIncome += income;
 				mExpense += expense;
-			});
-		let mBalance = mIncome - mExpense;
+			}
 
-		return { mOrderData, mIncome, mExpenseData, mExpense, mBalance };
+		return { mOrderData, mIncome, mExpenseData, mExpense };
 	}
 
-	_processYearlyData(data) {
+	_processYearlyData(date, data) {
+		let yOrderData = [], yExpenseData = [];
+		let yIncome = 0, yExpense = 0;
+		let d = {
+			year: date.year,
+		}
 
+		if (data)
+			for (let month = 1; month < 13; ++month) {
+				if (!data[month]) {
+					yOrderData.push(0);
+					yExpenseData.push(0);
+					continue;
+				}
+
+				let { mIncome, mExpense } = this._processMonthlyData(d, data[month]);
+				yOrderData.push(mIncome)
+				yExpenseData.push(-mExpense);
+				yIncome += mIncome;
+				yExpense += mExpense;
+			}
+
+		return { yOrderData, yIncome, yExpenseData, yExpense };
 	}
 
 	_renderIncomes(date, data, income) {
@@ -293,13 +452,6 @@ export default class ReportPage extends Component {
 						dataAlign="left"
 						dataSort>
 						Order ID
-					</TableHeaderColumn>
-
-					<TableHeaderColumn
-						dataField="date"
-						dataAlign="left"
-						dataSort>
-						Date
 					</TableHeaderColumn>
 
 					<TableHeaderColumn
@@ -352,7 +504,7 @@ export default class ReportPage extends Component {
 					Expenses: {expense.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
 				</h2>
 
-				{data.day ? this._renderExpenseInput() : null}
+				{date.day ? this._renderExpenseInput() : null}
 
 				<BootstrapTable ref={(ref) => this.expenseTable = ref}
 					data={data}
@@ -363,13 +515,6 @@ export default class ReportPage extends Component {
 						dataAlign="left"
 						dataSort>
 						#
-					</TableHeaderColumn>
-
-					<TableHeaderColumn
-						dataField="date"
-						dataAlign="left"
-						dataSort>
-						Date
 					</TableHeaderColumn>
 
 					<TableHeaderColumn
