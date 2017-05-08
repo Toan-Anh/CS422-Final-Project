@@ -6,7 +6,8 @@ import {
     View,
     Picker,
     TouchableNativeFeedback,
-    TextInput
+    TextInput,
+    InteractionManager
 } from 'react-native';
 import { Container, Content, Tab, Tabs, Header, Body, Title, StyleProvider, getTheme, Left, Button, Icon, Right, Thumbnail, Item, Input } from 'native-base';
 import { Actions } from 'react-native-router-flux';
@@ -46,20 +47,22 @@ export default class CreateOrder extends Component {
 
     componentDidMount() {
         var that = this;
-        var tablesRef = firebase.database().ref('tables');
-        tablesRef.on('value', function (snapshot) {
-            console.log(snapshot.val());
-            var tables = [];
-            for (let x in snapshot.val()) {
-                tables.push(x);
-            }
+        InteractionManager.runAfterInteractions(() => {
+            var tablesRef = firebase.database().ref('tables');
+            tablesRef.on('value', function (snapshot) {
+                var tables = [];
+                for (let x in snapshot.val()) {
+                    tables.push(x);
+                }
 
-            that.setState({
-                tables: tables,
-                isLoading: false,
-                selectedTable: tables[0]
+                that.setState({
+                    tables: tables,
+                    isLoading: false,
+                    selectedTable: tables[0]
+                });
             });
-        });
+        })
+
     }
 
     render() {
@@ -123,6 +126,10 @@ export default class CreateOrder extends Component {
     }
 
     _onSendNewOrder() {
+        if (this.state.dishes.length == 0) {
+            alert('No dish was chosen!');
+            return;
+        }
         var that = this;
         var ordersRef = firebase.database().ref('orders/' + this.state.selectedTable);
         ordersRef.once('value', function (snapshot) {
@@ -210,7 +217,7 @@ export default class CreateOrder extends Component {
     _onDeleteDish(e, idx) {
         var newDishes = this.state.dishes;
         newDishes.splice(idx, 1);
-		console.log(idx);
+        console.log(idx);
         this.setState({
             dishes: newDishes
         });
