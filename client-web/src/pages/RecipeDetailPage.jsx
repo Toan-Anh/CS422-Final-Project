@@ -19,20 +19,15 @@ export default class RecipeDetailPage extends Component {
 		};
 
 		this._onRecipeReceived = this._onRecipeReceived.bind(this);
-		this._onIngredientsReceived = this._onIngredientsReceived.bind(this);
 	}
 
 	componentWillMount() {
 		this.recipeRef = firebase.database().ref(`/recipes/${this.props.match.params.recipe_name}`);
 		this.recipeRef.on('value', this._onRecipeReceived);
-
-		this.ingredientsRef = firebase.database().ref(`/ingredientsPerDish/${this.props.match.params.recipe_name}`);
-		this.ingredientsRef.on('value', this._onIngredientsReceived);
 	}
 
 	componentWillUnmount() {
 		this.recipeRef.off('value', this._onRecipeReceived);
-		this.ingredientsRef.off('value', this._onIngredientsReceived);
 	}
 
 	_onRecipeReceived(snapshot) {
@@ -40,17 +35,6 @@ export default class RecipeDetailPage extends Component {
 		if (!recipe.steps)
 			recipe.steps = [];
 		this.setState({ recipe: recipe, loading: false });
-	}
-
-	_onIngredientsReceived(snapshot) {
-		let tmp = { ingredients: [] };
-		snapshot.forEach(child => {
-			tmp.ingredients.push({
-				name: child.key,
-				amount: child.val()
-			});
-		});
-		this.setState({ recipe: Object.assign({}, this.state.recipe, tmp), loading: false });
 	}
 
 	_renderLoading() {
@@ -126,7 +110,8 @@ export default class RecipeDetailPage extends Component {
 		if (this.props.user && this.props.user.level <= this.props.level) {
 			let content = this.state.editing ? this._renderRecipeEditor() : this._renderRecipe();
 			let editButton = null;
-			if (!this.state.loading && !this.state.editing)
+			if (!this.state.loading && !this.state.editing &&
+				this.props.user && this.props.roles && this.props.user.level <= this.props.roles['chef de cuisine'])
 				editButton = (
 					<span>
 						<Button bsStyle='primary'
@@ -135,7 +120,8 @@ export default class RecipeDetailPage extends Component {
 					</Button>
 					</span>
 				);
-			else if (!this.state.loading)
+			else if (!this.state.loading &&
+				this.props.user && this.props.roles && this.props.user.level <= this.props.roles['chef de cuisine'])
 				editButton = (
 					<span>
 						<Button onClick={(e) => { this.setState({ editing: false }) }}>

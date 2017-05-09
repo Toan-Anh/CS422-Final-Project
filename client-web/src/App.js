@@ -125,7 +125,15 @@ class App extends Component {
 	}
 
 	_navigate(user_level) {
-		if (this.props.location.pathname === '/') {
+		let check = this.tabs.some((tab, index) => {
+			if (this.props.location.pathname === tab.path) {
+				this._changeTab(index);
+				return true;
+			}
+			return false;
+		});
+
+		if (!check) {
 			for (let i = 0; i < this.tabs.length; ++i) {
 				if (user_level <= this.tabs[i].level) {
 					this._changeTab(i);
@@ -133,16 +141,10 @@ class App extends Component {
 				}
 			}
 		}
-		else {
-			this.tabs.forEach((tab, index) => {
-				if (this.props.location.pathname === tab.path)
-					this._changeTab(index);
-			});
-		}
 	}
 
 	_onOrderAdded(snapshot) {
-		if (this.state.currentUser && this.state.currentUser.level <= 1) {
+		if (this.state.currentUser && this.roles && this.state.currentUser.level <= this.roles['chef de cuisine']) {
 			let title = 'New order';
 			let options = {
 				body: 'A new order has arrived',
@@ -262,11 +264,11 @@ class App extends Component {
 						{this.tabs.map(item => {
 							return (
 								<Route key={item.path} path={item.path} render={(props) =>
-									<item.component level={item.level} user={this.state.currentUser} {...props} />} />
+									<item.component level={item.level} user={this.state.currentUser} roles={this.roles} {...props} />} />
 							);
 						})}
 						<Route path='/recipes/:recipe_name' render={(props) =>
-							<RecipeDetailPage level={2} user={this.state.currentUser} {...props} />} />
+							<RecipeDetailPage level={2} user={this.state.currentUser} roles={this.roles} {...props} />} />
 
 					</div>
 
