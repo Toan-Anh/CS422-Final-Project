@@ -146,6 +146,7 @@ export default class CreateOrder extends Component {
     }
 
     componentWillUnmount() {
+        firebase.database().ref('tables').off();
         var ordersRef = firebase.database().ref('orders/' + this.state.selectedTable);
         ordersRef.off();
     }
