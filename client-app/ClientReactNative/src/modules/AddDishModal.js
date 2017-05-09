@@ -18,19 +18,7 @@ export default class FancyModal extends Component {
         super(props);
         this.state = {
             modalVisible: true,
-            dishes: [
-                {
-                    name: 'Phở tái',
-                    price: 35000
-                },
-                {
-                    name: 'Phở bò',
-                    price: 35000
-                },
-                {
-                    name: 'Bún bò',
-                    price: 35000
-                }],
+            dishes:[],
             quantity: 1,
             selectedDish: 0,
             isLoading: true
@@ -55,7 +43,8 @@ export default class FancyModal extends Component {
                 dishes.push({
                     price: temp[x]['price'],
                     name: temp[x]['name'],
-                    image: temp[x]['image']
+                    image: temp[x]['image'],
+                    available: temp[x]['available']
                 });
             }
 
@@ -117,6 +106,10 @@ export default class FancyModal extends Component {
     }
 
     _onPressAdd() {
+        if (!this.state.dishes[this.state.selectedDish]['available]) {
+            alert('The dish is not available at the moment!');
+            return;
+        }
         var newDish = JSON.parse(JSON.stringify(this.state.dishes[this.state.selectedDish]));
         newDish['quantity'] = this.state.quantity;
         console.log('\n\n\n\n\n\n\nnewdishAdd');
