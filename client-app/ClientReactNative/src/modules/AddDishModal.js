@@ -106,7 +106,7 @@ export default class FancyModal extends Component {
     }
 
     _onPressAdd() {
-        if (!this.state.dishes[this.state.selectedDish]['available]) {
+        if (!this.state.dishes[this.state.selectedDish]['available']) {
             alert('The dish is not available at the moment!');
             return;
         }
