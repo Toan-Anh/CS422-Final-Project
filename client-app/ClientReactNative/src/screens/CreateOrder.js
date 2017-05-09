@@ -49,7 +49,7 @@ export default class CreateOrder extends Component {
         var that = this;
         InteractionManager.runAfterInteractions(() => {
             var tablesRef = firebase.database().ref('tables');
-            tablesRef.on('value', function (snapshot) {
+            tablesRef.once('value', function (snapshot) {
                 var tables = [];
                 for (let x in snapshot.val()) {
                     tables.push(x);
