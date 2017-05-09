@@ -49,7 +49,7 @@ export default class CreateOrder extends Component {
         var that = this;
         InteractionManager.runAfterInteractions(() => {
             var tablesRef = firebase.database().ref('tables');
-            tablesRef.once('value', function (snapshot) {
+            tablesRef.on('value', function (snapshot) {
                 var tables = [];
                 for (let x in snapshot.val()) {
                     tables.push(x);
@@ -146,6 +146,7 @@ export default class CreateOrder extends Component {
     }
 
     componentWillUnmount() {
+        firebase.database().ref('tables').off();
         var ordersRef = firebase.database().ref('orders/' + this.state.selectedTable);
         ordersRef.off();
     }
