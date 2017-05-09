@@ -1,8 +1,10 @@
 {
   "name": "client-web",
+  "homepage": "https://toan-anh.github.io/CS422-Final-Project/",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "gh-pages": "^1.0.0",
     "node-sass": "^4.5.1",
     "npm-run-all": "^4.0.2",
     "react-scripts": "0.9.5"
@@ -29,6 +31,8 @@
     "start": "npm-run-all -p watch-css start-js",
     "build": "npm run build-css && react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   }
 }

@@ -68,7 +68,7 @@ export default class LogInPage extends Component {
 	}
 
 	_resetPassword() {
-
+		firebase.auth().sendPasswordResetEmail(this.state.email);
 	}
 
 	_alertError(message) {
@@ -135,13 +135,13 @@ export default class LogInPage extends Component {
 					</FormGroup>
 				</form>
 
-				<a id='reset-password' onClick={() => { this._resetPassword() }}>Forgot your password?</a>
+				{this.state.email !== '' ? <a id='reset-password' onClick={() => { this._resetPassword() }}>Forgot your password?</a> : null}
 
 				<Button bsStyle='primary' style={{ alignSelf: 'stretch' }} onClick={() => this._logIn()}>Log In</Button>
 
 				<div style={{ flex: 1 }} />
 
-				<p id='copyright'>Blah blah blah copyright or something</p>
+				<p id='copyright'>&copy; 2017 Exampe Mini-restaurant Manament System</p>
 
 				{this._renderAlertModal()}
 			</div>
