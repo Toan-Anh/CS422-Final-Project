@@ -23,7 +23,7 @@ export default class CustomizedFAB extends Component {
                 active={this.state.active}
                 containerStyle={{ marginLeft: 10 }}
                 style={{ backgroundColor: variables.toolbarDefaultBg }}
-                onPress={() => {this.setState({ active: !this.state.active }); this.props.onFabClick()}}>
+                onPress={() => {this.props.onFabClick()}}>
                 <Icon name="md-create" />
             </Fab>
         );
