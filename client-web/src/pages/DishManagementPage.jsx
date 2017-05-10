@@ -195,10 +195,20 @@ export default class DishManagementPage extends Component {
 			onSelectAll: this._onSelectAll,
 		};
 
+		let editable = this.props.user && this.props.roles && this.props.user.level <= this.props.roles['chef de cuisine'];
 		const cellEdit = {
-			mode: 'dbclick', // double click cell to edit
+			mode: editable ? 'dbclick' : 'none', // double click cell to edit
 			beforeSaveCell: this._updateCell,
 		};
+
+		let addDeleteDishes = null;
+		if (this.props.user && this.props.roles && this.props.user.level <= this.props.roles['chef de cuisine'])
+			addDeleteDishes = (
+				<Col xs={12} sm={5} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+					<Button onClick={() => this.addModal.open()}>Add new dishes</Button>
+					<Button disabled={Object.keys(this.state.selectedRows).length < 1} onClick={() => this.deleteModal.open()}>Delete dishes</Button>
+				</Col>
+			);
 
 		return (
 			<div>
@@ -213,10 +223,7 @@ export default class DishManagementPage extends Component {
 						</FormGroup>
 					</Col>
 
-					<Col xs={12} sm={5} style={{ display: 'flex', justifyContent: 'flex-end' }}>
-						<Button onClick={() => this.addModal.open()}>Add new dishes</Button>
-						<Button disabled={Object.keys(this.state.selectedRows).length < 1} onClick={() => this.deleteModal.open()}>Delete dishes</Button>
-					</Col>
+					{addDeleteDishes}
 				</Row>
 
 				<BootstrapTable ref={(ref) => this.table = ref}

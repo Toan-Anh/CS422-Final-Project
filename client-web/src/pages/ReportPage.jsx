@@ -511,7 +511,7 @@ export default class ReportPage extends Component {
 					{...styles}>
 
 					<TableHeaderColumn isKey
-						dataField="purpose"
+						dataField="index"
 						dataAlign="left"
 						dataSort>
 						#
@@ -538,33 +538,37 @@ export default class ReportPage extends Component {
 
 	_renderExpenseInput(date) {
 		return (
-			<Row>
-				<Col xs={8} sm={6}>
-					<FormGroup controlId="formPurpose">
-						<FormControl
-							type="text"
-							placeholder="Expense purpose"
-							value={this.state.newExpensePurpose}
-							onChange={(e) => this.setState({ newExpensePurpose: e.target.value })}
-						/>
-					</FormGroup>
-				</Col>
+			<div>
+				<p>Added expense cannot be editted or removed! Please check twice before adding any expense.</p>
+				
+				<Row>
+					<Col xs={8} sm={6}>
+						<FormGroup controlId="formPurpose">
+							<FormControl
+								type="text"
+								placeholder="Expense purpose"
+								value={this.state.newExpensePurpose}
+								onChange={(e) => this.setState({ newExpensePurpose: e.target.value })}
+							/>
+						</FormGroup>
+					</Col>
 
-				<Col xs={4} sm={4}>
-					<FormGroup controlId="formValue">
-						<FormControl
-							type="number"
-							placeholder="Expense value"
-							value={this.state.newExpenseValue}
-							onChange={(e) => this.setState({ newExpenseValue: e.target.value !== '' ? parseInt(e.target.value, 10) : 0 })}
-						/>
-					</FormGroup>
-				</Col>
+					<Col xs={4} sm={4}>
+						<FormGroup controlId="formValue">
+							<FormControl
+								type="number"
+								placeholder="Expense value"
+								value={this.state.newExpenseValue}
+								onChange={(e) => this.setState({ newExpenseValue: e.target.value !== '' ? parseInt(e.target.value, 10) : 0 })}
+							/>
+						</FormGroup>
+					</Col>
 
-				<Col xs={12} sm={2} style={{ display: 'flex', justifyContent: 'flex-end' }}>
-					<Button bsStyle='primary' onClick={this._onAddExpense}>Enter expense</Button>
-				</Col>
-			</Row>
+					<Col xs={12} sm={2} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+						<Button bsStyle='primary' onClick={this._onAddExpense}>Enter expense</Button>
+					</Col>
+				</Row>
+			</div>
 		);
 	}
 

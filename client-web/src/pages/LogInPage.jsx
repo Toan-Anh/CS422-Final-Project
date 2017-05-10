@@ -68,7 +68,13 @@ export default class LogInPage extends Component {
 	}
 
 	_resetPassword() {
-		firebase.auth().sendPasswordResetEmail(this.state.email);
+		firebase.auth().sendPasswordResetEmail(this.state.email)
+		.then(()=>{
+			alert(`A password reset email has been sent to ${this.state.email}. Please set your new password as instructed in the email and come back here to log in`);
+		})
+		.catch((e) => {
+			alert(e);
+		});
 	}
 
 	_alertError(message) {

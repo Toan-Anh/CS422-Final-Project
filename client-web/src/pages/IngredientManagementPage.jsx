@@ -173,6 +173,15 @@ export default class IngredientManagementPage extends Component {
 			beforeSaveCell: this._updateAmount,
 		};
 
+		let addAndDelete = null;
+		if (this.props.user && this.props.roles && this.props.user.level <= this.props.roles['chef de cuisine'])
+			addAndDelete = (
+				<Col xs={12} sm={5} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+					<Button pullRight onClick={() => this.addModal.open()}>Add new ingredients</Button>
+					<Button disabled={Object.keys(this.state.selectedRows).length < 1} onClick={() => this.deleteModal.open()}>Delete ingredients</Button>
+				</Col>
+			);
+			
 		return (
 			<div>
 				{/*<div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>*/}
@@ -187,10 +196,7 @@ export default class IngredientManagementPage extends Component {
 						</FormGroup>
 					</Col>
 
-					<Col xs={12} sm={5} style={{ display: 'flex', justifyContent: 'flex-end' }}>
-						<Button pullRight onClick={() => this.addModal.open()}>Add new ingredients</Button>
-						<Button disabled={Object.keys(this.state.selectedRows).length < 1} onClick={() => this.deleteModal.open()}>Delete ingredients</Button>
-					</Col>
+					{addAndDelete}
 
 				</Row>
 
