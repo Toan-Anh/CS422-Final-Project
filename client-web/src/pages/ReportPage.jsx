@@ -14,6 +14,7 @@ import {
 } from 'react-bootstrap';
 import { HorizontalBar } from 'react-chartjs-2';
 import DatePicker from 'react-bootstrap-date-picker';
+import { ProcessReportHelper } from '../utils';
 import * as firebase from 'firebase';
 
 export default class ReportPage extends Component {
@@ -84,8 +85,8 @@ export default class ReportPage extends Component {
 
 		try {
 			let records = this.state.records[date.year][date.month][date.day];
-			let { orderData, income } = this._processDailyIncomeData(date, records.orders);
-			let { expenseData, expense } = this._processDailyExpenseData(date, records.expenses);
+			let { orderData, income } = ProcessReportHelper.processDailyIncomeData(date, records.orders);
+			let { expenseData, expense } = ProcessReportHelper.processDailyExpenseData(date, records.expenses);
 			let balance = income - expense
 
 			return (
@@ -128,7 +129,7 @@ export default class ReportPage extends Component {
 
 		try {
 			let records = this.state.records[date.year][date.month];
-			let { mOrderData, mIncome, mExpenseData, mExpense } = this._processMonthlyData(date, records);
+			let { mOrderData, mIncome, mExpenseData, mExpense } = ProcessReportHelper.processMonthlyData(date, records);
 			let mBalance = mIncome - mExpense;
 
 			return (
@@ -199,7 +200,7 @@ export default class ReportPage extends Component {
 
 		try {
 			let records = this.state.records[date.year];
-			let { yOrderData, yIncome, yExpenseData, yExpense } = this._processYearlyData(date, records);
+			let { yOrderData, yIncome, yExpenseData, yExpense } = ProcessReportHelper.processAnnualData(date, records);
 			let yBalance = yIncome - yExpense;
 
 			return (
@@ -325,105 +326,6 @@ export default class ReportPage extends Component {
 		return (
 			<h2>Balance: {balance.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</h2>
 		);
-	}
-
-	_processDailyIncomeData(date, data) {
-		let total = 0;
-		let tableData = [];
-		// let d = `0${date.day}/0${date.month}/${date.year}`;
-
-		if (data)
-			Object.keys(data).forEach((orderID, index) => {
-				let orderTotal = 0;
-				let dishes = [];
-				data[orderID].dishes.forEach((dish) => {
-					orderTotal += (dish.price * dish.quantity);
-					dishes.push({
-						dish: dish.dish,
-						quantity: dish.quantity,
-					});
-				});
-
-				tableData.push({
-					orderID,
-					dishes,
-					orderTotal,
-					// date: d,
-				})
-				total += orderTotal;
-			});
-
-		return { orderData: tableData, income: total };
-	}
-
-	_processDailyExpenseData(date, data) {
-		let total = 0;
-		let tableData = [];
-		// let d = `0${date.day}/0${date.month}/${date.year}`;
-
-		if (data)
-			Object.keys(data).forEach((key, index) => {
-				total += data[key].value;
-				// tableData.push({ index, date: d, ...data[key] });
-				tableData.push({
-					index: index + 1, ...data[key]
-				});
-			});
-
-		return { expenseData: tableData, expense: total };
-	}
-
-	_processMonthlyData(date, data) {
-		let mOrderData = [], mExpenseData = [];
-		let mIncome = 0, mExpense = 0;
-		let d = {
-			year: date.year,
-			month: date.month,
-		}
-
-		if (data)
-			for (let day = 1; day < 32; ++day) {
-				if (!data[day]) {
-					mOrderData.push(0);
-					mExpenseData.push(0);
-					continue;
-				}
-
-				d.day = day;
-				let { income } = this._processDailyIncomeData(d, data[day].orders);
-				let { expense } = this._processDailyExpenseData(d, data[day].expenses);
-				mOrderData.push(income)
-				mExpenseData.push(-expense);
-				mIncome += income;
-				mExpense += expense;
-			}
-
-		return { mOrderData, mIncome, mExpenseData, mExpense };
-	}
-
-	_processYearlyData(date, data) {
-		let yOrderData = [], yExpenseData = [];
-		let yIncome = 0, yExpense = 0;
-		let d = {
-			year: date.year,
-		}
-
-		if (data)
-			for (let month = 1; month < 13; ++month) {
-				if (!data[month]) {
-					yOrderData.push(0);
-					yExpenseData.push(0);
-					continue;
-				}
-
-				let { mIncome, mExpense } = this._processMonthlyData(d, data[month]);
-				yOrderData.push(mIncome)
-				yExpenseData.push(-mExpense);
-				yIncome += mIncome;
-				yExpense += mExpense;
-			}
-
-		return { yOrderData, yIncome, yExpenseData, yExpense };
 	}
 
 	_renderIncomes(date, data, income) {

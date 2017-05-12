@@ -1,5 +1,5 @@
-import API from './API.js'
+import ProcessReportHelper from './ProcessReportHelper.js'
 
 export {
-	API,
+	ProcessReportHelper,
 }
