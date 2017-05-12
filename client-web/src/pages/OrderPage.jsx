@@ -56,7 +56,7 @@ export default class OrderPage extends Component {
 	}
 
 	_renderTime(cell, row) {
-		return moment(moment.unix(cell)).fromNow();
+		return moment.unix(cell).fromNow();
 	}
 
 	_renderDishes(cell, row, extra, index) {
